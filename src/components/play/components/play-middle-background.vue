@@ -21,7 +21,6 @@ export default{
 		
 	},
 	mounted:function(){
-		
 	}
 }
 </script>
@@ -45,7 +44,7 @@ export default{
 	margin: 0 auto;
 	display: flex;
 	flex-flow: row wrap;
-	align-content: center;
+	align-items: center;
 	background-color: rgba(0,0,0,0.2);
 }
 .play-middle-background-innerbox{

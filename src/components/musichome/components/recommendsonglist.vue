@@ -6,7 +6,7 @@
 		<div class="list-box">
 			<ul>
 				
-					<li v-for="item in result" v-bind:key="item.id" @click="getsonglistdetail(item.id)">
+					<li v-for="(item,index) in result" v-bind:key="item.id" @click="getsonglistdetail(item.id,index)">
 						
 						<div class="songlist-img">
 							<img v-bind:src="item.picUrl">
@@ -28,13 +28,14 @@
 
 <script>
 import bus from './bus.js'
+import {recommendsonglist} from '../../../api/recommendsonglist.js'
 export default{
 	name: 'lunbo',
 	data(){
 		return {
-			rsl_result: {},
 			result: {},
-			songlistdetail: []
+			songlistdetail: [],
+			priority: []
 		}
 	},
 	filters:{
@@ -47,37 +48,31 @@ export default{
 	methods: {
 		//获取推荐歌单
 		getrecommendsonglist(){
-			this.$http.get('http://120.79.162.149:3000/personalized').then(res => {
+			recommendsonglist().then(res => {
 				//处理数据
-				this.rsl_result = {};
-				this.rsl_result = res.body;
-				this.result = this.rsl_result.result;
-				if(this.rsl_result.code==200){
-					// console.log(res);
-					// console.log(this.result[0].playCount)
-				}
-
-			})
-		},
-		//获取歌单详情列表方法
-		getsonglistdetail(id){
-			this.$store.commit('getsonglistid',id)
-			// 1.获取歌单
-			let url = 'http://120.79.162.149:3000/playlist/detail?id=' + this.$store.state.songlistid;
-			this.$http.get(url).then(res => {
-				// console.log(res)
-				this.songlistdetail = [];
-				this.songlistdetail = res.body;
+				console.log(res)
+				this.result = res.data.result;
+				console.log(this.result)
 				
-				this.$store.commit('getsonglistdetail',this.songlistdetail);
-				console.log(this.songlistdetail);
-				this.$router.push({
-					path: '/songlist'
-				})
-				// this.sendsonglistid();
+				
 			})
-			
 		},
+		//当点击推荐歌单时，先把排行榜的名字和背景保存到store中，以便优先list.vue头部优先渲染
+		//再跳转到list中，由list.vue实现歌单列表的获取
+		getsonglistdetail(id,index){
+			this.priority = this.result[index];
+			this.$store.commit('priority',this.priority);
+			console.log(this.$store.state.priorityRender)
+			this.$router.push({
+					path: '/songlist'
+			})	
+		},
+		
+		// priorityRender(id,index){
+		// 	this.priority = this.result[index];
+		// 	this.$store.commit('priority',this.priority);
+		// 	console.log(this.$store.state.priorityRender)
+		// }
 		// sendsonglistid(){
 			
 		// 	// 2.获取到歌单后通过bus发送到list.vue中

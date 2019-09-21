@@ -1,6 +1,6 @@
 <template>
 	<div class="paihang-box">
-		<div class="bangdan" v-for="(item,index) in list" v-bind:key="item.id" @click="getsonglistdetail(item.playlist.id)">
+		<div class="bangdan" v-for="(item,index) in list" v-bind:key="item.id" @click="getsonglistdetail(index)">
 			<div class="bangdan-img">
 				<img v-bind:src="item.playlist.coverImgUrl">
 			</div>
@@ -17,11 +17,13 @@
 
 <script>
 import bus from './../../musichome/components/bus.js'
+import {singerlistpaihang} from '../../../api/songlist.js'
 export default{
 	name: 'getpaihang',
 	data(){
 		return {
 			list: [],
+			priority: []
 		}
 	},
 	methods:{
@@ -32,11 +34,10 @@ export default{
 		// ldh.getAll();
 		//获取原创榜单
 		getoriginallist(){
-			this.$http.get('http://120.79.162.149:3000/top/list?idx=2').then(res => {
-				if(res.body.code == 200){
+			singerlistpaihang(2).then(res => {
+				if(res.data.code == 200){
 					this.list = [],
-					this.list.push(res.body);
-					console.log(res.body)
+					this.list.push(res.data);
 					this.getituneslist();
 				}
 			})
@@ -44,76 +45,53 @@ export default{
 		},
 		//获取iTunes榜
 		getituneslist(){
-			this.$http.get('http://120.79.162.149:3000/top/list?idx=8').then(res => {
-				if(res.body.code == 200){
-					this.list.push(res.body);
+			singerlistpaihang(8).then(res => {
+				if(res.data.code == 200){
+					this.list.push(res.data);
 					this.getchinalist();
 				}
 			})
 		},
 		//获取内地TOP排行榜
 		getchinalist(){
-			this.$http.get('http://120.79.162.149:3000/top/list?idx=15').then(res => {
-				if(res.body.code == 200){
-					this.list.push(res.body);
+			singerlistpaihang(15).then(res => {
+				if(res.data.code == 200){
+					this.list.push(res.data);
 					this.gethklist();
 				}
 			})
 		},
 		//获取话语金曲榜
 		gethklist(){
-			this.$http.get('http://120.79.162.149:3000/top/list?idx=17').then(res => {
-				if(res.body.code == 200){
-					this.list.push(res.body);
+			singerlistpaihang(17).then(res => {
+				if(res.data.code == 200){
+					this.list.push(res.data);
 					this.gethiphoplist();
 				}
 			})
 		},
 		//获取uk排行周榜
 		gethiphoplist(){
-			this.$http.get('http://120.79.162.149:3000/top/list?idx=18').then(res => {
-				if(res.body.code == 200){
-					this.list.push(res.body);
+			singerlistpaihang(18).then(res => {
+				if(res.data.code == 200){
+					this.list.push(res.data);
 				}
 			})
 		},
-		// 当点击排行榜时，把歌单id保存到store的state.songlistid中
-		// 再执行获取音乐详情的操作，获取歌名和背景图等，接着跳转到songlist页面
-		getsonglistdetail(id){
-			this.$store.commit('getsonglistid',id)
-			let url = 'http://120.79.162.149:3000/playlist/detail?id=' + this.$store.state.songlistid;
-			this.$http.get(url).then(res => {
-				// console.log(res)
-				this.songlistdetail = [];
-				this.songlistdetail = res.body;
-				
-				this.$store.commit('getsonglistdetail',this.songlistdetail);
-				console.log(this.songlistdetail);
-				this.$router.push({
+		//当点击排行榜时，先把排行榜的名字和背景保存到store中，以便优先list.vue头部优先渲染
+		//再跳转到list中，由list.vue实现歌单列表的获取
+		getsonglistdetail(index){
+			//音乐不同页面歌单的name和picUrl和id格式不同，所以先对歌单的name、picUrl、id进行格式化，再存储到store中
+			let name = this.list[index].playlist.name;
+			let id = this.list[index].playlist.id;
+			let picUrl = this.list[index].playlist.coverImgUrl;
+			this.priority = {'name': name , 'id': id , 'picUrl': picUrl};
+			this.$store.commit('priority',this.priority);
+			console.log(this.$store.state.priorityRender)
+			this.$router.push({
 					path: '/songlist'
-				})
-				// this.sendsonglistid();
 			})
-		}
-		//获取歌单详情列表方法
-		// getsonglistdetail(id){
-		// 	this.$store.commit('getsonglistid',id)
-		// 	// 1.获取歌单
-		// 	let url = 'http://120.79.162.149:3000/playlist/detail?id=' + this.$store.state.songlistid;
-		// 	this.$http.get(url).then(res => {
-		// 		// console.log(res)
-		// 		this.songlistdetail = [];
-		// 		this.songlistdetail = res.body;
-				
-		// 		this.$store.commit('getsonglistdetail',this.songlistdetail);
-		// 		console.log(this.songlistdetail);
-		// 		this.$router.push({
-		// 			path: '/songlist'
-		// 		})
-		// 		// this.sendsonglistid();
-		// 	})
-			
-		// },
+		},
 		
 	},
 	created:function(){
@@ -144,6 +122,7 @@ export default{
 	border-radius: 3px;
 }
 .bangdan-songlist{
+	width:70%;
 	float: left;
 }
 .bangdan-songlist ul{
@@ -154,5 +133,8 @@ export default{
 .bangdan-songlist ul li{
 	list-style: none;
 	margin-top: 12px;
+	text-overflow: ellipsis;
+	overflow: hidden;
+	white-space:nowrap;
 }
 </style>

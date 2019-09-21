@@ -13,14 +13,14 @@
 						</i>
 						<span>播放全部</span>
 						<span>(共</span>
-						<span v-text="songlistdetail.result.tracks.length"></span>
+						<span v-text="songlistdetail.length"></span>
 						<span>首)</span>
 					</li>
-					<li v-for="(items,index2) in songlistdetail.result.tracks" v-bind:key="items.id" @click="getmusic(items.id,index2)">
-						<p>{{index2+1}}</p>
+					<li v-for="(items,index) in songlistdetail" @click="getmusic(items.id,index)">
+						<p>{{index+1}}</p>
 						<div>
 							<h3>{{items.name}}</h3>
-							<p>{{items.artists[0].name}}</p>
+							<p>{{items.ar[0].name}}</p>
 						</div>
 					</li>
 					
@@ -32,11 +32,8 @@
 
 <script>
 import bus from './../../musichome/components/bus.js'
-import {songlistdetail} from '../../../api/songlist.js'
-import {musicplayurl} from '../../../api/playmusicdetail.js'
-import {musicdetail} from '../../../api/playmusicdetail.js'
 export default{
-	name: 'listbody',
+	name: 'singerlist',
 	data(){
 		return {
 			songlistdetail: [],
@@ -56,13 +53,13 @@ export default{
 		//获取音乐地址的方法
 		getmusic(idx,index){
 			//获取到的歌曲url不是我们想要的格式，我们只想获取里面的id
-			//let url;
-			//url = 'http://120.79.162.149:3000/music/url?id=' + idx;
+			console.log(idx)
+			let url;
+			url = 'http://120.79.162.149:3000/music/url?id=' + idx;
 			// console.log(url);
 			this.playurl = '';
 			//使用vue-resource调用音乐播放地址的API，获取我们想要的播放地址
-			musicplayurl(idx).then(res => {
-				console.log(res)
+			this.$http.get(url).then(res => {
 				// console.log(res.data.data[0].url)
 				//获取可以播放的url地址
 				this.playurl = res.data.data[0].url;
@@ -83,9 +80,9 @@ export default{
 	      document.querySelector('audio').src = url;
 	      	//当进入播放页后，把播放的音乐添加进最近播放列表中
 	      let recentplaylist = JSON.parse(window.localStorage.getItem('recentplaylist'));
-	      let songname = this.songlistdetail.result.tracks[index].name;
-	      let singername= this.songlistdetail.result.tracks[index].artists[0].name;
-	      let id = this.songlistdetail.result.tracks[index].id;
+	      let songname = this.songlistdetail[index].name;
+	      let singername= this.songlistdetail[index].ar[0].name;
+	      let id = this.songlistdetail[index].id;
 	      let arr = [{'songname': songname , 'singername': singername , 'id': id}];
 	      let arr1 = {'songname': songname , 'singername': singername , 'id': id}
 	      console.log(recentplaylist);
@@ -112,18 +109,16 @@ export default{
 	      this.$router.push({
 	        path: '/play'
 	      })
-	      }
-	      
+	  	  }
 		},
 		//获取所播放音乐的详情(背景图片和歌名)的方法
 		getdetail(id){
-			//let url = 'http://120.79.162.149:3000/song/detail?ids=' + id
-			musicdetail(id).then(res=>{
-				console.log(res)
+			let url = 'http://120.79.162.149:3000/song/detail?ids=' + id
+			this.$http.get(url).then(res=>{
 				// console.log(res.bodyText)
-				
+				this.detail = JSON.parse(res.bodyText);
 				//此时detail中存放的有背景图和歌名
-				this.detail = res.data.songs[0];
+				this.detail = this.detail.songs[0];
 				// this.detail
 				//获取到音乐详情后，保存到store的musicdetail中
 				this.abc(this.detail);
@@ -136,25 +131,23 @@ export default{
 		},
 		//获取歌单详情列表方法
 		//把歌单名和背景图保存到store中，方便进入list.vue页面时优先渲染
-		getsonglistdetail(){
-			this.$store.commit('getsonglistid',this.$store.state.priorityRender.id)
+		getsingerdetail(){
+			this.$store.commit('getsonglistid',this.$store.state.priorityRenderSinger.id)
 			console.log(this.$store.state.songlistid);
 			// 1.获取歌单
-			// let url = 'http://120.79.162.149:3000/playlist/detail?id=' + this.$store.state.songlistid;
-			songlistdetail(this.$store.state.songlistid).then(res => {
+			let url = 'http://120.79.162.149:3000/artists?id=' + this.$store.state.songlistid;
+			this.$http.get(url).then(res => {
 				// console.log(res)
 				this.songlistdetail = [];
-				this.songlistdetail = res.data;
+				this.songlistdetail = res.body.hotSongs;
 				this.loadingFlag = !this.loadingFlag;
 				console.log(this.songlistdetail);
 			})
-			
 		},
-	},
-		
+	},	
 	mounted:function(){
-    	this.getsonglistdetail();
-  	}
+    	this.getsingerdetail();
+  	},
 }
 </script>
 
@@ -211,7 +204,7 @@ export default{
 	display: flex;
 	border-bottom: 1px solid #e4e4e4;
 	flex-flow: row wrap;
-	align-content: center;
+	align-items:center;
 }
 .list-songname ul li i{
 	width:30px;

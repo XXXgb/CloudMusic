@@ -1,6 +1,11 @@
 <template>
 	<div class="nav">
-		 <div class="nav-music">音乐馆</div>
+		 <router-link to="/user">
+			 <div class="search-user">
+			 	<img src="../../../assets/images/gang.png">
+			 </div>
+		 </router-link>
+		 <div class="nav-music">Cloud Music</div>
 		 <router-link to="/gosearch">
 			 <div class="searchdiv">
 			 	<input type="text" placeholder="搜索" id="search" @click="gosearch()">
@@ -40,8 +45,9 @@ export default{
 	background-color:#F65555;
 	border: none;
 	margin: 0 auto;
-	padding-left: 2%;color: #fff;
-	font-size: 14px
+	padding-left: 2%;
+	color: #e4e4e4;;
+	font-size: 14px;
 	
 }
 .searchdiv{
@@ -54,5 +60,17 @@ export default{
 	font-size: 16px;
 	color:#fff;
 	text-align: center;
+	padding: 5px 0;
+}
+.search-user{
+	width: 25px;
+	height: 25px;
+	position: absolute;
+	top: 5px;
+	left: 10px;
+}
+.search-user img{
+	width: 100%;
+	height: 100%;
 }
 </style>

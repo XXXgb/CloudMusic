@@ -6,6 +6,7 @@ import paihang from '@/components/paihang/paihang.vue'
 import songlist from '@/components/songlist/songlist.vue'
 import play from '@/components/play/play.vue'
 import user from '@/components/user/user.vue'
+import singermusiclist from '@/components/singermusiclist/singermusiclist.vue'
 
 Vue.use(Router)
 
@@ -40,6 +41,13 @@ export default new Router({
       path: '/user',
       name: 'user',
       component: user
+    },
+    {
+      path: '/singermusiclist',
+      name: 'singermusiclist',
+      component: singermusiclist
     }
   ]
 })
+
+

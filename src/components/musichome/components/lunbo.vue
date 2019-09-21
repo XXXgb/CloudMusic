@@ -6,7 +6,7 @@
 	    	<img v-bind:src="item">
 	    </swiper-slide> -->
 	    <swiper-slide v-for="(item,index) in banners" v-bind:key="item.id" class="img-box">
-	    	<img v-bind:src="item.picUrl" @click.stop.prevent="getmusic(item.url)">
+	    	<img v-bind:src="item.picUrl" @click.stop.prevent="getmusic(item.targetId,index)">
 	    </swiper-slide>
 
 	    
@@ -19,6 +19,9 @@
 
 <script>
 import bus from './bus.js'
+import {lunbo} from '../../../api/lunbo.js'
+import {musicplayurl} from '../../../api/playmusicdetail.js'
+import {musicdetail} from '../../../api/playmusicdetail.js'
 export default{
 	name: 'lunbo',
 	data(){
@@ -33,100 +36,120 @@ export default{
 				pagination: '.swiper-pagination',
 				loop:true,
 				autoplay:2000
-			}
+			},
+			flag: false,
+			songlistdetail: []
 		}
 	},
 	methods:{
+		//轮播图插件的回调函数
+		callback(res){
+			console.log(res)
+		},
 		//获取轮播图音乐图片和音乐url的方法
 		getnewsong(){
-			this.$http.get('http://120.79.162.149:3000/banner').then(res => {
+			lunbo().then(res => {
 				// console.log(res.bodyText)
-				let bodyText = JSON.parse(res.bodyText);
 				// console.log(bodyText.banners)
-				this.banners = bodyText.banners;
+				this.banners = res.data.banners;
 				// console.log(this.banners)
 			})
 		},
 		//获取音乐地址的方法
-		getmusic(url,idx){
+		getmusic(idx,index){
 			//获取到的歌曲url不是我们想要的格式，我们只想获取里面的id
-			//所以我们使用正则表达式过滤出id的数字
-			var id;
-			// console.log(id)
-			if(!url){
-				url = 'http://120.79.162.149:3000/music/url?id=' + idx;
-				id = idx;
-			}else{
-				let patter = new RegExp(/\d+/g);
-				url = patter.exec(url);
-				id = url[0];
-				url = 'http://120.79.162.149:3000/music/url?id=' + id;
-			}
-			
+			//let url;
+			//url = 'http://120.79.162.149:3000/music/url?id=' + idx;
 			// console.log(url);
 			this.playurl = '';
 			//使用vue-resource调用音乐播放地址的API，获取我们想要的播放地址
-			this.$http.get(url).then(res => {
+			musicplayurl(idx).then(res => {
 				// console.log(res.data.data[0].url)
 				//获取可以播放的url地址
+				console.log(res)
 				this.playurl = res.data.data[0].url;
+				this.getdetail(idx,this.playurl,index);
+				
 				// this.playmusic(this.playurl);
-				this.sendsongid();
-				this.getdetail(id);
+				// this.sendsongid();
+				// this.getdetail(id);
 			})
 		},
-		// //播放音乐的方法
-		// playmusic(url){
-		// 	document.querySelector('audio').src = url;
-		// },
+		//播放音乐的方法
+	    playmusic(idx,url,index){
+	      
+	      if(url==null){
+	      	let musicdetail = {"name": "","ar": [{"name": ""}],"al": {"picUrl": ""}}
+	      	this.$store.commit('bcd',musicdetail)
+	      	alert('该音乐暂无版权，无法播放！')
+	      }else{
+	      this.flag = true;
+	      document.querySelector('audio').src = url;
+	      	//当进入播放页后，把播放的音乐添加进最近播放列表中
+	      let recentplaylist = JSON.parse(window.localStorage.getItem('recentplaylist'));
+	      let songname = this.$store.state.musicdetail.name;
+	      let singername= this.$store.state.musicdetail.ar[0].name;
+	      let id = idx;
+	      let arr = [{'songname': songname , 'singername': singername , 'id': id}];
+	      let arr1 = {'songname': songname , 'singername': singername , 'id': id}
+	      console.log(recentplaylist);
+
+	      // 如果一开始就已经有最近播放的列表，则把原有的列表读取出来，再追加新播放的音乐
+	      if(recentplaylist){
+	      	let recentplaylistFlag = recentplaylist.findIndex((item,inex) => item.id == id);
+	      	//判断最近播放列表里是否已经有相同的音乐，如果有，把它删除，再追加到数组头部，如果没有，直接追加到数组头部
+	      	if(recentplaylistFlag == '-1'){
+	      		//如果recentplaylistFlag等于-1，则说明数组中未找到相同的音乐，所以直接在头部追加
+	      		recentplaylist.unshift(arr1);
+	      		window.localStorage.setItem('recentplaylist',JSON.stringify(recentplaylist));
+	      	}else{
+	      		// 如果recentplaylistFlag不等于-1，则说明数组中找到相同的音乐
+	      		//删除
+	      		recentplaylist.splice(recentplaylistFlag,1);
+	      		//在头部追加
+	      		recentplaylist.unshift(arr1);
+	      		window.localStorage.setItem('recentplaylist',JSON.stringify(recentplaylist));
+	      	}
+	      }else{
+	      	window.localStorage.setItem('recentplaylist',JSON.stringify(arr));
+	      }
+	      this.$router.push({
+	        path: '/play'
+	      })
+	      }
+	      
+		},
 		//获取所播放音乐的详情(背景图片和歌名)的方法
-		getdetail(id){
-			let url = 'http://120.79.162.149:3000/song/detail?ids=' + id
-			this.$http.get(url).then(res=>{
+		getdetail(id,url2,index){
+			//let url = 'http://120.79.162.149:3000/song/detail?ids=' + id
+			musicdetail(id).then(res=>{
 				// console.log(res.bodyText)
-				this.detail = JSON.parse(res.bodyText);
+				//this.detail = JSON.parse(res.bodyText);
 				//此时detail中存放的有背景图和歌名
-				this.detail = this.detail.songs[0];
+				console.log(res)
+				this.detail = res.data.songs[0];
 				// this.detail
 				//获取到音乐详情后，保存到store的musicdetail中
-				this.abc(this.detail);
+				this.abc(this.detail,id,url2,index);
 				//当开始播放音乐时，执行senddetail方法，将lunbo.vue中detail值发送到playfield.vue中，实现兄弟间的传值
-				//senddetail()一定要在then回调函数里面调用，否则会出现第一次点击，playfield接收不到数据，第二次点击接收到第一次点击发送的数据
-				this.senddetail();
-			})
-		},
-		senddetail(){	
-			this.$nextTick(function () {
-				bus.$emit("getValue",this.detail);
+				//senddetail()一定要在then回调函数里面调用，否则会出现第一次点击，playfield接收不到数据，第二次点击接收到第一次点击发送的数据	
 
 			})
 		},
-		// 把歌曲id传到app.vue主页面，进行音乐播放
-		sendsongid(){
-			this.$nextTick(function () {
-				bus.$emit("getsongid",this.playurl);
-			})
+		abc(detail,id,url,index){
+			let that = this;
+			let promise = new Promise(function(resolve,reject){
+					resolve(that.$store.commit('bcd',detail))
+				})
+				promise.then(res => {
+					that.playmusic(id,url,index);
+				});
+			
 		},
-		//接收list.vue传过来的音乐id
-		getmusicid(id){
-			bus.$on('musicid',res => {
-				
-				//接收到id值后，调用getmusic方法，以获取播放音乐的url地址，再调用sendsongid把url发送到app.vue界面，app.vue调用音乐播放的playmusic方法，最后音乐将会播放
-				if(res){
-					console.log(res);
-					this.getmusic('',res)
-				}
-				
-			})
-		},
-		abc(detail){
-			this.$store.commit('bcd',detail)
-		}
 
 	},
 	mounted:function(){
 		this.getnewsong();
-		this.getmusicid();
 	}
 }
 </script>

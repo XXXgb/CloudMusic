@@ -1,26 +1,26 @@
 <template>
 	<div>
-		<topnav></topnav>
-		<listbackground></listbackground>
-		<listbody></listbody>
+		<singertopnav></singertopnav>
+		<singerlistbackground></singerlistbackground>
+		<singerlist></singerlist>
 	</div>
 </template>
 
 <script>
-import topnav from './components/top-nav.vue'
-import listbody from './components/list.vue'
-import listbackground from './components/listbackground.vue'
+import singertopnav from './components/singer-top-nav.vue'
+import singerlist from './components/singerlist.vue'
+import singerlistbackground from './components/singerlistbackground.vue'
 
 export default{
 	name: 'songlist',
-	data(){
+	data(){	
 		return {
 		}
 	},
 	components:{
-		topnav,
-		listbody,
-		listbackground
+		singertopnav,
+		singerlist,
+		singerlistbackground
 	},
 	methods:{
 		//当页面滚动时，top-nav组件的透明度从0逐渐增加到1
@@ -30,7 +30,7 @@ export default{
 			//当滚动条向下滚动时，计算透明度变化值，到滚动到距离顶部200的位置，透明度到达1，此时透明度不会再变化
 			let opcityValue = scrollTop/200;
 			if(opcityValue>0&&opcityValue<=1){
-				document.querySelector('.list-top-nav').style.background = "rgba(212, 68, 57, "+ opcityValue +") none repeat scroll 0% 0%";
+				document.querySelector('.singer-top-nav').style.background = "rgba(212, 68, 57, "+ opcityValue +") none repeat scroll 0% 0%";
 			}
 			
 			// background: rgba(212, 68, 57, 0) none repeat scroll 0% 0%

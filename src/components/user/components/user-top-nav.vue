@@ -1,91 +1,173 @@
 <template>
-	<div class="slider" ref="slider">
-        <div class="process" :style="{width}"></div>
-        <div class="thunk" ref="trunk" :style="{left}">
-            <div class="block"></div>
-            <div class="tips">
-            <span>{{scale*100}}</span>
-            <i class="fas fa-caret-down" ></i>
-        </div>
-        </div>
-    </div>
+	<div>
+		<div class="user-top-nav">
+			<div class="user-fanhui" @click="back">
+				<img src="../../../assets/images/fanhui.png">
+			</div>
+			<div>
+				<span @click="mycoollect">我的收藏</span>
+				<span @click="recentplay">最近播放</span>
+			</div>
+		</div>
+		<div class="user-playall-box">
+			<div class="user-playall"><img src="../../../assets/images/playall.png"></div>
+			<div class="user-songall"><span>播放全部</span><span>(共{{mycoollectLength}}首)</span></div>
+		</div>
+		<div class="user-songlist">
+			<ul>
+				<li v-for="(item,index) in songlist" @click="getmusic(item.id)">
+					<p>{{index+1}}</p>
+					<div>
+						<h3>{{item.songname}}</h3>
+						<p>{{item.singername}}</p>
+					</div>
+				</li>
+			</ul>
+		</div>
+	</div>
 </template>
 
 <script>
-/*
-  * min 进度条最小值
-  * max 进度条最大值
-  * v-model 对当前值进行双向绑定实时显示拖拽进度
-  * */
-  export default{
-  	name: 'usertopnav',
-      props:['min','max','value'],
-      data(){
-        return{
-          slider:null,        //滚动条DOM元素
-          thunk:null,         //拖拽DOM元素
-          per:this.value,     //当前值
-        }
-      },
-      //渲染到页面的时候
-      mounted () {
-        this.slider = this.$refs.slider;
-        this.thunk = this.$refs.trunk;
-        var _this = this;
-        this.thunk.onmousedown = function (e) {
-            var width = parseInt(_this.width);
-            var disX = e.clientX;
-            document.onmousemove = function(e){
-                // value, left, width
-                // 当value变化的时候，会通过计算属性修改left，width
 
-                // 拖拽的时候获取的新width
-                var newWidth = e.clientX - disX + width;
-                // 拖拽的时候得到新的百分比
-                var scale = newWidth / _this.slider.offsetWidth;
-                _this.per = Math.ceil((_this.max - _this.min) * scale + _this.min);
-                _this.per = Math.max(_this.per,_this.min);
-                _this.per = Math.min(_this.per,_this.max);
-            }
-            document.onmouseup = function(){
-                document.onmousemove = document.onmouseup = null;
-            }
-            return false;
-        }
-      },
-      computed:{
-        // 设置一个百分比，提供计算slider进度宽度和trunk的left值
-        // 对应公式为  当前值-最小值/最大值-最小值 = slider进度width / slider总width
-        // trunk left =  slider进度width + trunk宽度/2
-        scale(){
-          return (this.per - this.min) / (this.max - this.min);
-        },
-        width(){
-          if(this.slider){
-            return this.slider.offsetWidth * this.scale + 'px';
-          }else{
-            return 0 + 'px'
-          }
-        },
-       left(){
-          if(this.slider){
-            return this.slider.offsetWidth * this.scale -  this.thunk.offsetWidth/2  + 'px';
-          }else{
-            return 0 + 'px'
-          }
-        }
-      },
-  }
+export default{
+  	name: 'usertopnav',
+    data(){
+    	return {
+    		songlist: [],
+    		mycoollectLength: 0
+    	}
+    },
+    methods:{
+    	back(){
+    		history.go(-1);
+    	},
+    	mycoollect(){
+    		//计算我的收藏共有多少首
+    		this.mycoollectLength = (JSON.parse(window.localStorage.getItem('mycoollect'))).length;
+    		//把收藏的音乐取出来
+    		this.songlist = JSON.parse(window.localStorage.getItem('mycoollect'));
+    	},
+    	recentplay(){
+    		//计算最近播放列表共有多少首歌
+    		this.mycoollectLength = (JSON.parse(window.localStorage.getItem('recentplaylist'))).length;
+    		this.songlist = JSON.parse(window.localStorage.getItem('recentplaylist'));
+    	},
+    	//获取音乐url
+    	getmusic(idx){
+    		console.log(idx)
+    	}
+    },
+    created:function(){
+    	this.mycoollect();
+    	
+    }
+}
 </script>
 
 <style>
-  .box{margin:100px auto 0;width:80%}
-  .clear:after{content:'';display:block;clear:both}
-  .slider{position:relative;margin:20px 0;width:200px;height:10px;background:#e4e7ed;border-radius:5px;cursor:pointer}
-  .slider .process{position:absolute;left:0;top:0;width:112px;height:10px;border-radius:5px;background:#409eff}
-  .slider .thunk{position:absolute;left:100px;top:-7px;width:20px;height:20px}
-  .slider .block{width:20px;height:20px;border-radius:50%;border:2px solid #409eff;background:rgba(255,255,255,1);transition:.2s all}
-  .slider .tips{position:absolute;left:-7px;bottom:30px;min-width:15px;text-align:center;padding:4px 8px;background:#000;border-radius:5px;height:24px;color:#fff}
-  .slider .tips i{position:absolute;margin-left:-5px;left:50%;bottom:-9px;font-size:16px;color:#000}
-  .slider .block:hover{transform:scale(1.1);opacity:.6}
+.user-top-nav{
+	position: fixed;
+	top: 0;
+	width: 100%;
+	height: 44px;
+	display: flex;
+	flex-flow: column wrap;
+	justify-content: center;
+	z-index: 9999;
+	background-color:#d44439;
+}
+.user-fanhui{
+	width: 25px;
+	height: 25px;
+	margin-left: 10px;
+}
+.user-fanhui img{
+	width: 100%;
+	height: 100%;
+}
+.user-top-nav div:nth-child(1){
+	margin-left: 5px;
+	color: #f2f3f4;
+}
+.user-top-nav div:nth-child(2){
+	width:100%;
+	color: #f2f3f4;
+	display: flex;
+	justify-content: center;
+}
+.user-top-nav div:nth-child(2) span{
+	flex: 1;
+}
+.user-top-nav div:nth-child(2) span:nth-child(1){
+	margin-left: 12%;
+}
+.user-top-nav div:nth-child(2) span:nth-child(2){
+	margin-right: 12%;
+}
+.user-playall-box{
+	position: absolute;
+	top: 44px;
+	left: 0;
+	width:100%;
+	height:40px;
+	border-bottom: 1px solid #e4e4e4;
+	display: flex;
+	align-items: center;
+}
+.user-playall{
+	width: 25px;
+	height:25px;
+	margin-left: 10px;
+	margin-right: 5px;
+}
+.user-playall img{
+	width:100%;
+	height:100%;
+}
+.user-songlist{
+	width: 100%;
+	position: absolute;
+	top: 88px;
+	border-radius: 10px;
+	background-color: #f2f3f4;
+}
+.user-songlist ul{
+	width: 100%;
+	padding: 0;
+	margin: 0;
+}
+.user-songlist ul li{
+	width: 100%;
+	height: 60px;	
+	display: flex;
+	border-bottom: 1px solid #e4e4e4;
+	flex-flow: row wrap;
+	align-content: center;
+}
+.user-songlist ul li p:nth-child(1){
+	width:15%;
+	text-align: center;
+}
+.user-songlist ul li div:nth-child(2){
+	width:85%;
+	height:50px;
+	display: flex;
+	flex-flow: column wrap;
+	justify-content: center;
+}
+.user-songlist ul li div:nth-child(2) h3{
+	margin: 0;
+	padding: 0;
+	color: #2e3030;
+	white-space: nowrap;
+	font-size: 16px;
+	font-weight: 400;
+}
+.user-songlist ul li div:nth-child(2) p{
+	margin: 0;
+	padding: 0;
+	color: #757575;
+	font-size: 12px;
+	font-weight: 400;
+}
 </style>

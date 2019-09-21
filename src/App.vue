@@ -1,22 +1,28 @@
 <template>
   <div id="app">
-    <router-view></router-view>
+    <transition name="fade">
+      <router-view></router-view>
+    </transition>
     <!-- <playfield></playfield> -->
     <div class="playfield" ref="playfield" @click="goplaypage" :style="{bottom: $store.state.flag ? 0 : '-70px'}">
       <!-- :style="       {bottom: $store.state.flag ? 0 : '-70px'}                          " -->
       <div class="bg">
-        <img v-bind:src="detailimg">
+        <img v-bind:src="$store.state.musicdetail.al.picUrl">
       </div>
       <div class="songname">
-        <span>{{detailsongname}}</span>
-        <span>{{detailsongpeople}}</span>
+        <span>{{$store.state.musicdetail.name}}</span>
+        <span>{{$store.state.musicdetail.ar[0].name}}</span>
       </div>
       <div class="pos">
-        <div class="stop" @click="play" v-if="flag2"></div>
-        <div class="play" @click="stop" v-if="!flag2"></div>
+        <div class="stop" @click.stop.prevent="play" v-if="this.$store.state.playFlag">
+          <div class="stop-inner"></div>
+        </div>
+        <div class="play" @click.stop.prevent="stop" v-if="!this.$store.state.playFlag">
+          <div class="play-inner"></div>
+        </div>
       </div>
     </div>
-    <audio autoplay="autoplay" id="audio"></audio>
+    <audio autoplay="autoplay" id="audio" ref="audio"></audio>
   </div>
 </template>
 
@@ -31,7 +37,7 @@ export default {
       detailimg: '',
       detailsongname: '',
       detailsongpeople: '',
-      flag2: false
+      
     }
   },
   components:{
@@ -70,14 +76,14 @@ export default {
     },
     //音乐播放按钮点击播放事件
     play(){
-      this.flag2 = !this.flag2;
+      this.$store.state.playFlag = !this.$store.state.playFlag;
       let audio = document.querySelector('audio');
       audio.play();
 
     },
     // 音乐暂停按钮点击暂停事件
     stop(){
-      this.flag2 = !this.flag2;
+      this.$store.state.playFlag = !this.$store.state.playFlag;
       let audio = document.querySelector('audio');
       audio.pause();
       //当音乐暂停时，背景图旋转也停止
@@ -110,7 +116,7 @@ body{
   bottom: -70px;
   width:100%;
   height: 70px;
-  background-color: hsla(0,0%,100%,.85);
+  background-color: hsla(0,0%,100%,0.85);
   z-index: 5000;
   transition: 0.5s linear;
 }
@@ -118,7 +124,6 @@ body{
   width:50px;
   height: 50px;
   border-radius: 50%;
-  background-color: blue;
   overflow: hidden;
   border: none;
   margin: 10px 0 0 20px;
@@ -146,23 +151,55 @@ body{
   display: block;
 }
 .pos{
+  width:15px;
+  height: 15px;
 }
 .stop{
+    width:30px;
+    height:30px;
+    border:3px solid hsla(0,0%,7%,.6);
+    border-radius:50%;
+    position: absolute;
+    right: 50px;
+    top:15px;
+    display:flex;
+    flex-flow: column wrap;
+    justify-content: center;
+    align-items:center;
+}
+.stop-inner{
     width: 0;
     height: 0;
-    border-top: 10px solid transparent;
-    border-left: 20px solid red;
-    border-bottom: 10px solid transparent;
-    position: absolute;
-    right: 50px;
-    top:25px;
+    border-top: 8px solid transparent;
+    border-left: 15px solid hsla(0,0%,7%,.6);
+    border-bottom: 8px solid transparent;
+    margin-left:5px;
 }
 .play{
-    width: 15px;
-    height: 15px;
-    border: 1px solid red;
+    width:30px;
+    height:30px;
+    border:3px solid hsla(0,0%,7%,.6);
+    border-radius:50%;
     position: absolute;
     right: 50px;
-    top:25px;
+    top:15px;
+    display:flex;
+    flex-flow: column wrap;
+    justify-content: center;
+    align-items:center;
 }
+.play-inner{
+    width: 12px;
+    height: 12px;
+    background-color:hsla(0,0%,7%,.6);
+    margin-left:0px;
+}
+/*路由页面跳转过渡动画*/
+.fade-enter-active, .fade-leave-avtive {
+    transition: all 0.5s; 
+}
+.fade-enter, .fade-leave-to {
+    opacity: 0.5; 
+}
+
 </style>

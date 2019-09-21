@@ -6,13 +6,22 @@ Vue.use(Vuex)
 //2.创建对象
 const store = new Vuex.Store({
 	state:{
-		musicdetail: [],
+		musicdetail: {
+			"name": "",
+			"ar": [{"name": ""}],
+			"al": {"picUrl": ""}
+		}
+		,
 		musictime: 0,
 		songlistid: 0,
 		songlistdetail: [],
 		musicid: 0,
 		//flag为播放栏是否升起的标志
-		flag: false
+		flag: false,
+		priorityRender: [],
+		priorityRenderSinger: [],
+		playurl: '',
+		playFlag: false
 	},
 	mutations:{
 		//接收lunbo.vue传过来的音乐detail
@@ -29,7 +38,22 @@ const store = new Vuex.Store({
 		},
 		sq(state,fl){
 			state.flag = fl;
+		},
+		priority(state,detail){
+			state.priorityRender = detail;
+		},
+		prioritysinger(state,detail){
+			state.priorityRenderSinger = detail;
+		},
+		//保存播放音乐的url
+		playUrl(state,url){
+			state.playurl = url;
+		},
+		//音乐播放或暂停的标志
+		changePlayFlag(state,flag){
+			state.playFlag = flag;
 		}
+
 	}
 })
 

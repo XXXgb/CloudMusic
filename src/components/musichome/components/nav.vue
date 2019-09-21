@@ -25,6 +25,7 @@ export default{
 	background-color: #d44439;
 	overflow: hidden;
 	z-index: 9999;
+	line-height:30px;
 }
 .navbar-box div{
 	width:10%;
