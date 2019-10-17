@@ -21,7 +21,11 @@ const store = new Vuex.Store({
 		priorityRender: [],
 		priorityRenderSinger: [],
 		playurl: '',
-		playFlag: false
+		playFlag: false,
+		playalllist:[],
+		//判断playlist中哪首音乐需要高亮的标志
+		playlistindex: 0,
+		EndFlag: true,
 	},
 	mutations:{
 		//接收lunbo.vue传过来的音乐detail
@@ -52,8 +56,19 @@ const store = new Vuex.Store({
 		//音乐播放或暂停的标志
 		changePlayFlag(state,flag){
 			state.playFlag = flag;
+		},
+		//点击播放全部后，保存所有音乐
+		setplayalllist(state,list){
+			state.playalllist = list;
+		},
+		//保存playlist当前正在播放的是第几首音乐的index
+		setplaylistindex(state,number){
+			state.playlistindex = number;
+		},
+		//是否播放结束进入下一首的标志
+		setendflag(state,f){
+			state.EndFlag = f;
 		}
-
 	}
 })
 

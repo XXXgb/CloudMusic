@@ -22,6 +22,7 @@ import bus from './bus.js'
 import {lunbo} from '../../../api/lunbo.js'
 import {musicplayurl} from '../../../api/playmusicdetail.js'
 import {musicdetail} from '../../../api/playmusicdetail.js'
+import {latelyplay} from '../../../common/common.js'
 export default{
 	name: 'lunbo',
 	data(){
@@ -95,24 +96,9 @@ export default{
 	      console.log(recentplaylist);
 
 	      // 如果一开始就已经有最近播放的列表，则把原有的列表读取出来，再追加新播放的音乐
-	      if(recentplaylist){
-	      	let recentplaylistFlag = recentplaylist.findIndex((item,inex) => item.id == id);
-	      	//判断最近播放列表里是否已经有相同的音乐，如果有，把它删除，再追加到数组头部，如果没有，直接追加到数组头部
-	      	if(recentplaylistFlag == '-1'){
-	      		//如果recentplaylistFlag等于-1，则说明数组中未找到相同的音乐，所以直接在头部追加
-	      		recentplaylist.unshift(arr1);
-	      		window.localStorage.setItem('recentplaylist',JSON.stringify(recentplaylist));
-	      	}else{
-	      		// 如果recentplaylistFlag不等于-1，则说明数组中找到相同的音乐
-	      		//删除
-	      		recentplaylist.splice(recentplaylistFlag,1);
-	      		//在头部追加
-	      		recentplaylist.unshift(arr1);
-	      		window.localStorage.setItem('recentplaylist',JSON.stringify(recentplaylist));
-	      	}
-	      }else{
-	      	window.localStorage.setItem('recentplaylist',JSON.stringify(arr));
-	      }
+	      // 否则，新建一个recentplaylist本地存储，再将播放的音乐添加进最近播放列表中
+	      latelyplay(recentplaylist,id,arr,arr1)
+
 	      this.$router.push({
 	        path: '/play'
 	      })

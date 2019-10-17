@@ -6,7 +6,7 @@
 				<div class="play-bottom-playfield-innerbox">
 					<div class="play-bottom-playfield-jindutiao" id="jindutiao">
 						<div class="play-bottom-playfield-yibofang" id="yibofang" ref="yibofang"></div>
-						<div class="play-bottom-playfield-qiubox" id="qiubox" ref="qiubox" @mousedown.stop.prevent="changebar"  @touchstart.stop.prevent="changebarbar" @touchend.prevent="stopmusic">
+						<div class="play-bottom-playfield-qiubox" id="qiubox" ref="qiubox" @mousedown.stop.prevent="changebar"  @touchstart.stop.prevent="changebarbar">
 							<div class="play-bottom-playfield-qiu"></div>
 						</div>
 					</div>
@@ -33,6 +33,8 @@ export default{
 		return {
 			topvalue: 0,
 			totaltime: 0,
+			duration: '',
+			currentTime: ''
 		}
 	},
 	methods:{
@@ -62,23 +64,35 @@ export default{
 			let sec1;
 			let min2;
 			let sec2;
-			console.log(zong);
-			console.log(yi);
-			console.log(speed);
+			//console.log(zong);
+			//console.log(yi);
+			//console.log(speed);
+
 			let a = setInterval(function(){
 				c += speed;
 				zong = audio.duration;
 				yi = audio.currentTime;
+				this.duration = zong;
+				this.currentTime = yi;
 				w = (yi/zong).toFixed(3);
 				// 如果播放完毕，将播放暂停的按钮设置为暂停
-				if(yi >= zong){
-					that.$refs.play.src = '../static/play.png';
-					that.playFlag = !that.playFlag;
-				}
+				//if(yi >= zong){
+					//that.$refs.stop.src = '../../../../static/play.png'
+					//that.playFlag = !that.playFlag;
+					//clearInterval(a);
+
+				//}
 				//计算小球和进度条移动的位移
 				f = w*200;
-				if(yi >= zong){
-					clearInterval(a);
+				if(yi == zong){
+					console.log('播放完毕')
+					//clearInterval(a);
+					//当播放结束时，进入下一首
+					//1.把是否播放结束的标志改为false，表示播放结束，表示可以进入下一首
+					//clearInterval(a);
+					//此处将audio.currentTime设为0是为了使音乐进入下一首时，不发起多次ajax请求
+					audio.currentTime = 0;
+					that.cc();
 				}else{
 					yibofang.style.width = f + 'px';
 					qiubox.style.left = f + 'px';
@@ -109,11 +123,12 @@ export default{
 					}else{
 						// console.log("no")
 					}
-
 				}
-
 			},150)
 
+		},
+		cc(){
+			this.$store.commit('setendflag',false)
 		},
 		//PC端进度条的拖拉
 		changebar(e){
@@ -151,6 +166,8 @@ export default{
 				//计算音乐应该跳转到哪个时间点开始播放
 				let percent = (moveleft / 200).toFixed(2);
 				audio.currentTime = (time * percent).toFixed(2);
+				//当播放完毕后，重新拖拉，重新执行时间和小球的计算函数
+				that.move();
 				
 			}
 			document.onmouseup = function(){
@@ -178,7 +195,7 @@ export default{
 			console.log('qiuboxbLeft:' + qiuboxbLeft);
 			console.log('clientX:' + e.clientX)
 			document.ontouchmove = function(e){
-				console.log('qiuboxuLeft:' + event.changedTouches[0].clientX)
+				//console.log('qiuboxuLeft:' + event.changedTouches[0].clientX)
 				//计算进度条已移动的距离，公式：终点位置距离body的距离 - qiubox父元素距离body的左边距
 				moveleft = event.changedTouches[0].clientX - qiuboxuLeft;
 				if(moveleft >= 200){
@@ -194,10 +211,13 @@ export default{
 				//计算音乐应该跳转到哪个时间点开始播放
 				let percent = (moveleft / 200).toFixed(2);
 				audio.currentTime = (time * percent).toFixed(2);
+				//当播放完毕后，重新拖拉，重新执行时间和小球的计算函数
+				that.move();
 			}
 			document.ontouchend = function(e){
 				document.ontouchmove = null;
-				that.$refs.play.src = '../../../../static/pause.png'
+				
+				
 			}
 		},
 		stopmusic(){
@@ -234,13 +254,11 @@ export default{
 				//判断当前音乐是否已经收藏了，如果是，则取消收藏，如果未收藏，则收藏
 				let mycoollectFlag = mycoollect.findIndex((item,index) => item.id == id)
 				if(mycoollectFlag == '-1'){
-					console.log(mycoollectFlag)
 					mycoollect.unshift(arr1);
 					//判断出当前音乐还未收藏过，所以执行收藏操作，在数组尾部添加收藏音乐
 					window.localStorage.setItem('mycoollect',JSON.stringify(mycoollect));
 					alert('已收藏')
 				}else{
-					console.log(mycoollectFlag)
 					//判断出当前音乐已经收藏过了，所以执行取消收藏操作，将数组中对应的音乐删除
 					mycoollect.splice(mycoollectFlag,1);
 					//删除完毕后，将新的数组更新
@@ -261,6 +279,7 @@ export default{
 		this.move();
 
 	},
+	
 	
 }
 </script>

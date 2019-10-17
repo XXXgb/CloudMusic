@@ -50,6 +50,7 @@ import {singerurl} from '../../../api/search.js'
 import {songlisturl} from '../../../api/search.js'
 import {musicplayurl} from '../../../api/playmusicdetail.js'
 import {musicdetail} from '../../../api/playmusicdetail.js'
+import {latelyplay,panduan,playall} from '../../../common/common.js'
 export default{
 	name: 'searchinput',
 	data(){
@@ -154,13 +155,13 @@ export default{
 				//获取可以播放的url地址
 				this.playurl = res.data.data[0].url;
 				this.getdetail(idx);
-				this.playmusic(this.playurl,index);
+				this.playmusic(this.playurl,index,idx);
 				// this.playmusic(this.playurl);
 				// this.sendsongid();
 				// this.getdetail(id);
 			})
 		},
-		playmusic(url,index){
+		playmusic(url,index,idx){
 	      this.flag = true;
 	      document.querySelector('audio').src = url;
 	      if(url==null){
@@ -174,26 +175,18 @@ export default{
 	      let arr = [{'songname': songname , 'singername': singername , 'id': id}];
 	      let arr1 = {'songname': songname , 'singername': singername , 'id': id}
 	      console.log(recentplaylist);
+	      this.getdetail(idx);
+	      //当点击playlist的播放后，执行panduan方法，获取当前播放音乐在playalllist列表中的位置(下标),获取到下标后，保存到selIndex中
+	      let selIndex = panduan(id);
+	      console.log(selIndex)
 
 	      // 如果一开始就已经有最近播放的列表，则把原有的列表读取出来，再追加新播放的音乐
-	      if(recentplaylist){
-	      	let recentplaylistFlag = recentplaylist.findIndex((item,inex) => item.id == id);
-	      	//判断最近播放列表里是否已经有相同的音乐，如果有，把它删除，再追加到数组头部，如果没有，直接追加到数组头部
-	      	if(recentplaylistFlag == '-1'){
-	      		//如果recentplaylistFlag等于-1，则说明数组中未找到相同的音乐，所以直接在头部追加
-	      		recentplaylist.unshift(arr1);
-	      		window.localStorage.setItem('recentplaylist',JSON.stringify(recentplaylist));
-	      	}else{
-	      		// 如果recentplaylistFlag不等于-1，则说明数组中找到相同的音乐
-	      		//删除
-	      		recentplaylist.splice(recentplaylistFlag,1);
-	      		//在头部追加
-	      		recentplaylist.unshift(arr1);
-	      		window.localStorage.setItem('recentplaylist',JSON.stringify(recentplaylist));
-	      	}
-	      }else{
-	      	window.localStorage.setItem('recentplaylist',JSON.stringify(arr));
-	      }
+	      // 否则，新建一个recentplaylist本地存储，再将播放的音乐添加进最近播放列表中
+	      latelyplay(recentplaylist,id,arr,arr1)
+
+	      //实现点击播放音乐后，playlist中改变当前播放音乐的颜色
+		  this.changecolor(index)
+
 	      this.$router.push({
 	        path: '/play'
 	      })
@@ -249,6 +242,32 @@ export default{
 		getkeywords(songname){
 			this.keywords = songname;
 		},
+		// 播放全部功能
+		// 当点击时播放全部按钮时，将所有音乐缓存到localstorage中
+		clickplayall(){
+			//封装了一个保存播放全部列表的方法，传入两个参数，分别为音乐的的总数和音乐列表
+			playall(this.songlist.length,this.songlist);
+			
+
+		},
+		//实现点击播放音乐后，playlist中改变当前播放音乐的颜色
+		changecolor(index){
+			let that = this;
+			//1.调用clickplayall方法
+			let promise = new Promise(function(resolve,reject){
+				that.clickplayall();
+				return resolve()
+			})
+			
+			//2.获取当前播放的音乐是第几首
+			console.log(index)
+			//3.改变playlist第几首的颜色
+			promise.then(function(){
+				console.log('chenggongle'+index);
+				that.$store.commit('setplaylistindex',index)
+			})
+			
+		}
 	},
 	mounted:function(){
 		this.jiaodian();
@@ -266,9 +285,6 @@ export default{
 </script>
 
 <style>
-.search-box{
-	position: relative;
-}
 .searchinput-box{
 	width:100%;
 	height:45px;
@@ -320,10 +336,10 @@ export default{
 }
 .search-box{
 	width:100%;
-	height: 45px;
-	background-color: #d44439;
+	height: 100%;
+	
 	clear: both;
-	position: relative;
+	
 }
 
 .hotsearch-wai{

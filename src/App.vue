@@ -21,13 +21,20 @@
           <div class="play-inner"></div>
         </div>
       </div>
+      <div class="playlist" @click.stop.prevent="showplaylist()">
+        <img src="../static/more.png"/>
+      </div>
     </div>
     <audio autoplay="autoplay" id="audio" ref="audio"></audio>
+    <playlist ref="playlist"></playlist>
+    <div class="clear"></div>
   </div>
 </template>
 
 <script>
 import bus from './components/musichome/components/bus.js'
+import playlist from './components/musichome/components/playlist.vue'
+
 // import playfield from './components/musichome/components/playfield.vue'
 export default {
   name: 'App',
@@ -42,6 +49,7 @@ export default {
   },
   components:{
 		// playfield
+    playlist
 	},
   methods:{
     //播放音乐的方法
@@ -94,11 +102,19 @@ export default {
         path: '/play'
       })
     },
+    //显示播放列表
+    showplaylist(){
+      this.$refs.playlist.toggleplaylist();
+      this.$refs.playlist.getplayalllist();
+    },
   },
   created:function(){
     this.songid();
     this.getdetail();
+
   },
+  mounted:function(){
+  }
   
 }
 </script>
@@ -110,6 +126,11 @@ body{
   background-color: #f2f3f4;
 }
 #app{
+  position:relative;
+  z-index:999;
+}
+.clear{
+  clear:both;
 }
 .playfield{
   position: fixed;
@@ -143,25 +164,27 @@ body{
 }
 .songname{
   float: left;
+  width: 55%;
   margin-left: 2%;
   margin-top: 4%;
   font-size: 14px;
+
 }
 .songname span{
   display: block;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
 }
-.pos{
-  width:15px;
-  height: 15px;
-}
+
 .stop{
-    width:30px;
-    height:30px;
+    width:25px;
+    height:25px;
     border:3px solid hsla(0,0%,7%,.6);
     border-radius:50%;
     position: absolute;
     right: 50px;
-    top:15px;
+    top:17px;
     display:flex;
     flex-flow: column wrap;
     justify-content: center;
@@ -170,29 +193,41 @@ body{
 .stop-inner{
     width: 0;
     height: 0;
-    border-top: 8px solid transparent;
-    border-left: 15px solid hsla(0,0%,7%,.6);
-    border-bottom: 8px solid transparent;
+    border-top: 6px solid transparent;
+    border-left: 13px solid hsla(0,0%,7%,.6);
+    border-bottom: 6px solid transparent;
     margin-left:5px;
 }
 .play{
-    width:30px;
-    height:30px;
+    width:25px;
+    height:25px;
     border:3px solid hsla(0,0%,7%,.6);
     border-radius:50%;
     position: absolute;
     right: 50px;
-    top:15px;
+    top:17px;
     display:flex;
     flex-flow: column wrap;
     justify-content: center;
     align-items:center;
 }
 .play-inner{
-    width: 12px;
-    height: 12px;
+    width: 10px;
+    height: 10px;
     background-color:hsla(0,0%,7%,.6);
     margin-left:0px;
+}
+.playlist{
+  width:20px;
+  height:20px;
+  position:absolute;
+  top:22px;
+  right:15px;
+}
+.playlist img{
+  width:100%;
+  height:100%;
+  opacity:0.6;
 }
 /*路由页面跳转过渡动画*/
 .fade-enter-active, .fade-leave-avtive {

@@ -34,7 +34,7 @@ export default{
 	left: 0;
 	display: flex;
 	flex-flow: row wrap;
-	align-content: center;
+	align-items:center;
 	z-index: 9999;
 }
 .play-middle-background-outerbox{

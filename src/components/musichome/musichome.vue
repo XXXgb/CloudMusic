@@ -18,7 +18,7 @@ export default{
 		search,
 		lunbo,
 		recommendsonglist,
-		navbar
+		navbar,
 	}
 }
 </script>

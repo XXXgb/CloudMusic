@@ -1,5 +1,5 @@
 <template>
-	<div>
+	<div class="user-play-box">
 		<div class="user-top-nav">
 			<div class="user-fanhui" @click="back">
 				<img src="../../../assets/images/fanhui.png">
@@ -65,9 +65,11 @@ export default{
 </script>
 
 <style>
+.user-play-box{
+	width:100%;
+	height:100%;
+}
 .user-top-nav{
-	position: fixed;
-	top: 0;
 	width: 100%;
 	height: 44px;
 	display: flex;
@@ -75,6 +77,7 @@ export default{
 	justify-content: center;
 	z-index: 9999;
 	background-color:#d44439;
+
 }
 .user-fanhui{
 	width: 25px;
@@ -105,9 +108,6 @@ export default{
 	margin-right: 12%;
 }
 .user-playall-box{
-	position: absolute;
-	top: 44px;
-	left: 0;
 	width:100%;
 	height:40px;
 	border-bottom: 1px solid #e4e4e4;
@@ -126,8 +126,6 @@ export default{
 }
 .user-songlist{
 	width: 100%;
-	position: absolute;
-	top: 88px;
 	border-radius: 10px;
 	background-color: #f2f3f4;
 }

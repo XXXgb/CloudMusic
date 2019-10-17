@@ -1,5 +1,5 @@
 <template>
-	<div class="list-box2">
+	<div class="list-box3">
 		<div class="list-father">
 			<div class="list-loading" v-if="!loadingFlag"> 
 				<img src="../../../assets/images/loading.gif"/>
@@ -9,7 +9,7 @@
 				<ul>
 					<li>
 						<i>
-							<img src="../../../assets/images/playall.png">
+							<img src="../../../assets/images/playall.png" @click="clickplayall">
 						</i>
 						<span>播放全部</span>
 						<span>(共</span>
@@ -35,6 +35,7 @@ import bus from './../../musichome/components/bus.js'
 import {singerlistdetail} from '../../../api/songlist.js'
 import {musicplayurl} from '../../../api/playmusicdetail.js'
 import {musicdetail} from '../../../api/playmusicdetail.js'
+import {latelyplay,panduan,playall} from '../../../common/common.js'
 export default{
 	name: 'singerlist',
 	data(){
@@ -67,15 +68,15 @@ export default{
 				// console.log(res.data.data[0].url)
 				//获取可以播放的url地址
 				this.playurl = res.data.data[0].url;
-				this.getdetail(idx);
-				this.playmusic(this.playurl,index);
+				
+				this.playmusic(this.playurl,index,idx);
 				// this.playmusic(this.playurl);
 				// this.sendsongid();
 				// this.getdetail(id);
 			})
 		},
 		//播放音乐的方法
-	    playmusic(url,index){
+	    playmusic(url,index,idx){
 	      
 	      if(url==null){
 	      	alert('该音乐暂无版权，无法播放！')
@@ -89,27 +90,19 @@ export default{
 	      let id = this.songlistdetail[index].id;
 	      let arr = [{'songname': songname , 'singername': singername , 'id': id}];
 	      let arr1 = {'songname': songname , 'singername': singername , 'id': id}
-	      console.log(recentplaylist);
+	      this.getdetail(idx);
+	      //当点击playlist的播放后，执行panduan方法，获取当前播放音乐在playalllist列表中的位置(下标),获取到下标后，保存到selIndex中
+	      let selIndex = panduan(id);
+	      console.log(selIndex)
 
 	      // 如果一开始就已经有最近播放的列表，则把原有的列表读取出来，再追加新播放的音乐
-	      if(recentplaylist){
-	      	let recentplaylistFlag = recentplaylist.findIndex((item,inex) => item.id == id);
-	      	//判断最近播放列表里是否已经有相同的音乐，如果有，把它删除，再追加到数组头部，如果没有，直接追加到数组头部
-	      	if(recentplaylistFlag == '-1'){
-	      		//如果recentplaylistFlag等于-1，则说明数组中未找到相同的音乐，所以直接在头部追加
-	      		recentplaylist.unshift(arr1);
-	      		window.localStorage.setItem('recentplaylist',JSON.stringify(recentplaylist));
-	      	}else{
-	      		// 如果recentplaylistFlag不等于-1，则说明数组中找到相同的音乐
-	      		//删除
-	      		recentplaylist.splice(recentplaylistFlag,1);
-	      		//在头部追加
-	      		recentplaylist.unshift(arr1);
-	      		window.localStorage.setItem('recentplaylist',JSON.stringify(recentplaylist));
-	      	}
-	      }else{
-	      	window.localStorage.setItem('recentplaylist',JSON.stringify(arr));
-	      }
+	      // 否则，新建一个recentplaylist本地存储，再将播放的音乐添加进最近播放列表中
+	      latelyplay(recentplaylist,id,arr,arr1)
+
+
+	      //实现点击播放音乐后，playlist中改变当前播放音乐的颜色
+		  this.changecolor(index)
+
 	      this.$router.push({
 	        path: '/play'
 	      })
@@ -119,16 +112,10 @@ export default{
 		getdetail(id){
 			//let url = 'http://120.79.162.149:3000/song/detail?ids=' + id
 			musicdetail(id).then(res=>{
-				//console.log(res)
-				// console.log(res.bodyText)
-				//this.detail = JSON.parse(res.bodyText);
 				//此时detail中存放的有背景图和歌名
 				this.detail = res.data.songs[0];
-				// this.detail
 				//获取到音乐详情后，保存到store的musicdetail中
 				this.abc(this.detail);
-				//当开始播放音乐时，执行senddetail方法，将lunbo.vue中detail值发送到playfield.vue中，实现兄弟间的传值
-				//senddetail()一定要在then回调函数里面调用，否则会出现第一次点击，playfield接收不到数据，第二次点击接收到第一次点击发送的数据	
 			})
 		},
 		abc(detail){
@@ -142,13 +129,35 @@ export default{
 			// 1.获取歌单
 			//let url = 'http://120.79.162.149:3000/artists?id=' + this.$store.state.songlistid;
 			singerlistdetail(this.$store.state.songlistid).then(res => {
-				// console.log(res)
 				this.songlistdetail = [];
 				this.songlistdetail = res.data.hotSongs;
 				this.loadingFlag = !this.loadingFlag;
-				//console.log(this.songlistdetail);
 			})
 		},
+		// 当点击时播放全部按钮时，将所有音乐缓存到localstorage中
+		clickplayall(){
+			//封装了一个保存播放全部列表的方法，传入两个参数，分别为音乐的的总数和音乐列表
+			playall(this.songlistdetail.length,this.songlistdetail);
+			console.log(this.songlistdetail)
+		},
+		//实现点击播放音乐后，playlist中改变当前播放音乐的颜色
+		changecolor(index){
+			let that = this;
+			//1.调用clickplayall方法
+			let promise = new Promise(function(resolve,reject){
+				that.clickplayall();
+				return resolve()
+			})
+			
+			//2.获取当前播放的音乐是第几首
+			console.log(index)
+			//3.改变playlist第几首的颜色
+			promise.then(function(){
+				console.log('chenggongle'+index);
+				that.$store.commit('setplaylistindex',index)
+			})
+			
+		}
 	},	
 	mounted:function(){
     	this.getsingerdetail();
@@ -157,39 +166,15 @@ export default{
 </script>
 
 <style>
-.list-box2{
+.list-box3{
 	margin: 0;
 }
-.list-father{
+.list-box3 .list-father{
 	position: relative;
-}
-.list-bg{
-	background-image: url(../.././../assets/images/109951162913202465.jpg);
-	background-size: 100% 300px;
-	width:100%;
-	height: 300px;
-	position: relative;
-	top: 0;
-	margin: 0;
-	padding: 0;
-}
-.list-songlistname{
-	color: #fff;
-	position: absolute;
-	bottom: 25px;
-	left: 10px;
-}
-.list-songlistname h2{
-	font-size: 16px;
-
-}
-.list-songlistname p{
-	font-size: 11px;
+	top:-25px;
 }
 .list-songname{
 	width: 100%;
-	position: absolute;
-	top: -25px;
 	border-radius: 10px;
 	background-color: #f2f3f4;
 }

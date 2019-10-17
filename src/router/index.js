@@ -1,12 +1,18 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import musichome from '@/components/musichome/musichome.vue'
-import gosearch from '@/components/gosearch/gosearch.vue'
+// import gosearch from '@/components/gosearch/gosearch.vue'
+const gosearch = () => import('@/components/gosearch/gosearch.vue')
 import paihang from '@/components/paihang/paihang.vue'
-import songlist from '@/components/songlist/songlist.vue'
-import play from '@/components/play/play.vue'
+// import songlist from '@/components/songlist/songlist.vue'
+const songlist = () => import('@/components/songlist/songlist.vue')
+// import play from '@/components/play/play.vue'
+const play = () => import('@/components/play/play.vue')
 import user from '@/components/user/user.vue'
-import singermusiclist from '@/components/singermusiclist/singermusiclist.vue'
+// import singermusiclist from '@/components/singermusiclist/singermusiclist.vue'
+const singermusiclist = () => import('@/components/singermusiclist/singermusiclist.vue')
+import playlist from '@/components/musichome/components/playlist.vue'
+import singer from '@/components/singer/singer.vue'
 
 Vue.use(Router)
 
@@ -46,7 +52,12 @@ export default new Router({
       path: '/singermusiclist',
       name: 'singermusiclist',
       component: singermusiclist
-    }
+    },
+    {
+      path: '/singer',
+      name: 'singer',
+      component: singer
+    },
   ]
 })
 
