@@ -26,9 +26,9 @@ export function latelyplay(recentplaylist,id,arr,arr1){
 export function panduan(id){
 	let playalllist = JSON.parse(window.localStorage.getItem('playalllist'));
 	let selIndex = playalllist.findIndex((item,index) => item.id == id);
-
+	let selId = playalllist[selIndex].id
 	if(selIndex > -1){
-		return selIndex;
+		return {selId,selIndex};
 	}else{
 		return null;
 	}

@@ -23,8 +23,8 @@ const store = new Vuex.Store({
 		playurl: '',
 		playFlag: false,
 		playalllist:[],
-		//判断playlist中哪首音乐需要高亮的标志
-		playlistindex: 0,
+		//判断playlist中哪个id音乐需要高亮的标志
+		playlistid: 0,
 		EndFlag: true,
 	},
 	mutations:{
@@ -62,8 +62,8 @@ const store = new Vuex.Store({
 			state.playalllist = list;
 		},
 		//保存playlist当前正在播放的是第几首音乐的index
-		setplaylistindex(state,number){
-			state.playlistindex = number;
+		setplaylistindex(state,id){
+			state.playlistid = id;
 		},
 		//是否播放结束进入下一首的标志
 		setendflag(state,f){

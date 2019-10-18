@@ -86,9 +86,7 @@ export default{
 	      let arr1 = {'songname': songname , 'singername': singername , 'id': id};
 	      console.log(recentplaylist);
 	      this.getdetail(idx);
-	      //当点击playlist的播放后，执行panduan方法，获取当前播放音乐在playalllist列表中的位置(下标),获取到下标后，保存到selIndex中
-	      let selIndex = panduan(id);
-	      console.log(selIndex)
+	      
 	      
 
 
@@ -97,7 +95,7 @@ export default{
 	      latelyplay(recentplaylist,id,arr,arr1)
 
 	      //实现点击播放音乐后，playlist中改变当前播放音乐的颜色
-		  this.changecolor(index)
+		  this.changecolor(idx,index)
 	      
 
 	      this.$router.push({
@@ -142,7 +140,7 @@ export default{
 
 		},
 		//实现点击播放音乐后，playlist中改变当前播放音乐的颜色
-		changecolor(index){
+		changecolor(id,index){
 			let that = this;
 			//1.调用clickplayall方法
 			let promise = new Promise(function(resolve,reject){
@@ -151,11 +149,11 @@ export default{
 			})
 			
 			//2.获取当前播放的音乐是第几首
-			console.log(index)
+			console.log(id)
 			//3.改变playlist第几首的颜色
 			promise.then(function(){
-				console.log('chenggongle'+index);
-				that.$store.commit('setplaylistindex',index)
+				console.log('chenggongle'+id);
+				that.$store.commit('setplaylistindex',id)
 			})
 			
 		}
