@@ -35,7 +35,7 @@
 		</div>
 		<div style="width: 100%;height: 5px;background-color: #e8e8e8;"></div>
 		<div>
-			<span style="margin-left: 10px;font-weight: 600;font-size: 14px;margin-left: 10px;font-weight: 600;letter-spacing: 1px;">最新评论({{total}})</span>
+			<span style="margin-left: 10px;font-weight: 600;font-size: 14px;margin-left: 10px;font-weight: 600;letter-spacing: 1px;">实时评论({{total}})</span>
 			<div class="hot-comments-box" v-for="(item,index) in newComments">
 				<div style="width: 40px;height: 40px;margin: 10px;">
 					<img :src="item.user.avatarUrl">
@@ -76,7 +76,7 @@ export default{
 	filters:{
 		//格式化时间戳
 		timeFormat:function(time){
-			function formatDate(flag,data) { 
+			function formatDate(flag,data) {
 				let year=data.getFullYear();  //取得4位数的年份
 				let month=data.getMonth()+1;  //取得日期中的月份，其中0表示1月，11表示12月
 				let date=data.getDate();      //返回日期月份中的天数（1到31）
@@ -93,9 +93,9 @@ export default{
 				//	second = '0' + second;
 				//}
 				if(flag == 0){
-					return hour+":"+minute; 
+					return hour+":"+minute;
 				}else if(flag ==1){
-					return year+"年"+month+"月"+date+"日"+" "+hour+":"+minute; 
+					return year+"年"+month+"月"+date+"日"+" "+hour+":"+minute;
 				}
 			}
 			//计算时间戳的差值
@@ -108,7 +108,7 @@ export default{
 			}else if(differenceValue > 86400){
 				return formatDate(1,new Date(time));
 			}
-			
+
 		}
 	},
 	mounted:function(){
