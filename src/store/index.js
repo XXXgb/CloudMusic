@@ -10,8 +10,7 @@ const store = new Vuex.Store({
 			"name": "",
 			"ar": [{"name": ""}],
 			"al": {"picUrl": ""}
-		}
-		,
+		},
 		musictime: 0,
 		songlistid: 0,
 		songlistdetail: [],
@@ -26,6 +25,7 @@ const store = new Vuex.Store({
 		//判断playlist中哪个id音乐需要高亮的标志
 		playlistid: 0,
 		EndFlag: true,
+		playProgress: 0
 	},
 	mutations:{
 		//接收lunbo.vue传过来的音乐detail
@@ -68,6 +68,10 @@ const store = new Vuex.Store({
 		//是否播放结束进入下一首的标志
 		setendflag(state,f){
 			state.EndFlag = f;
+		},
+		//获取当前歌曲播放进度
+		getPlayProgress(state,progress){
+			state.playProgress = progress*100;
 		}
 	}
 })

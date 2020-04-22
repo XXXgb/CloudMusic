@@ -1,12 +1,12 @@
 <template>
 	<div class="navbar-box">
-		<router-link to="/">
+		<router-link to="/musichome">
 			<div :class="{addunderline : '/'===$route.path}">推荐</div>
 		</router-link>
 		<router-link to="/paihang">
 			<div :class="{addunderline : '/paihang'===$route.path}">排行</div>
 		</router-link>
-		<router-link to="/singer">
+		<router-link to="/comments">
 			<div :class="{addunderline : '/singer'===$route.path}">歌手</div>
 		</router-link>
 	</div>

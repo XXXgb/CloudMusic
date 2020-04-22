@@ -1,5 +1,6 @@
 <template>
 	<div class="search-box">
+
 		<div class="searchinput-box">
 			<div class="imgstyle fanhui" @click="back">
 				<img src="../../../assets/images/fanhui.png">
@@ -11,7 +12,7 @@
 				<img src="../../../assets/images/cha.png">
 			</div>
 		</div>
-		<div class="hotsearch-wai">
+		<div class="hotsearch-wai" v-if="!keywords">
 			<div class="hotsearch-nei">
 				<span>热门搜索</span>
 				<ul>
@@ -20,26 +21,30 @@
 			</div>
 		</div>
 		<div class="search-result-box" v-if="keywords">
+      <Scroll :on-reach-bottom="handleReachBottom" :height="clientHeight">
 			<div class="search-singger-songlist-box">
 				<p>最佳匹配</p>
-				<div class="search-singer" @click="getsinger()">
+				<div class="search-singer" @click="getsinger()" v-if="singer">
 					<img :src="singerpicUrl">
 					<span>歌手：{{singer}}</span>
 				</div>
-				<div class="search-singer"  @click="getsonglist()">
+				<div class="search-singer"  @click="getsonglist()" v-if="songlistName">
 					<img :src="songlistpicUrl">
 					<span>歌单：{{songlistName}}</span>
 				</div>
 			</div>
+
 			<ul>
-				<li v-for="(item, index) in songlist" @click="getmusic(item.id,index)">
-					<div>
-						<h3>{{item.name}}</h3>
-						<p><i v-for="(items,index2) in item.artists">{{items.name}}<i v-if="index2 <= item.artists.length-2">  /  </i></i></p>
-					</div>
-				</li>
+          <li v-for="(item, index) in songlist" @click="getmusic(item.id,index)">
+            <div>
+              <h3>{{item.name}}</h3>
+              <p><i v-for="(items,index2) in item.artists">{{items.name}}<i v-if="index2 <= item.artists.length-2">  /  </i></i></p>
+            </div>
+          </li>
 			</ul>
+      </Scroll>
 		</div>
+
 	</div>
 </template>
 
@@ -69,18 +74,22 @@ export default{
 			priority: [],
 			playurl: '',
 			flag: false,
-			detail:[]
+			detail:[],
+      clientHeight: ''
 		}
 	},
 	methods:{
 		removecontent(){
 			this.keywords = '';
+			this.songlist = '';
 		},
 		jiaodian(){
 			this.$refs.searchmusic.focus();
 		},
 		//回退到上一页
 		back(){
+			//删除监听
+			window.removeEventListener('scroll',this.scroll)
 			history.go(-1);
 		},
 		//获取热搜的方法
@@ -105,14 +114,23 @@ export default{
 			//let songlisturl = 'http://120.79.162.149:3000/search?keywords='+ this.keywords +'&offset=' + this.offset;
 			singerurl(this.keywords).then(res=>{
 				console.log(res)
-				this.singer = res.data.result.artists[0].name
-				this.singerid = res.data.result.artists[0].id
-				this.singerpicUrl = res.data.result.artists[0].picUrl;
-				this.songlistName = res.data.result.playlists[0].name;
-				this.songlistid = res.data.result.playlists[0].id;
-				this.songlistpicUrl = res.data.result.playlists[0].coverImgUrl;
-				console.log(this.singerid)
-				console.log(this.songlistid)
+				try{
+					this.singer = res.data.result.artists[0].name
+					this.singerid = res.data.result.artists[0].id
+					this.singerpicUrl = res.data.result.artists[0].picUrl;
+				}
+				catch(err){
+					this.singer = false;
+				}
+				try{
+					this.songlistName = res.data.result.playlists[0].name;
+					this.songlistid = res.data.result.playlists[0].id;
+					this.songlistpicUrl = res.data.result.playlists[0].coverImgUrl;
+				}
+				catch(err){
+					console.log(err)
+					this.songlistName = false;
+				}
 			})
 			songlisturl(this.keywords,this.offset).then(res=>{
 				this.songlist = [];
@@ -121,27 +139,24 @@ export default{
 			})
 		},
 		//当滚动条触底时再加载30首歌曲
-		scroll(){
-			//触底的条件为：scrollHeight==scrollTop+clientHeight
-			let scrollTop = document.documentElement.scrollTop;
-			let clientHeight = document.documentElement.clientHeight;
-			let scrollHeight = document.documentElement.scrollHeight;
-			if(scrollHeight==scrollTop+clientHeight){
-				//每一次触底，offset加1
-				this.offset = this.offset + 30;
-				//let songlisturl = 'http://120.79.162.149:3000/search?keywords='+ this.keywords +'&offset=' + this.offset;
-				console.log('触底了')
-				console.log(this.offset)
-				songlisturl(this.keywords,this.offset).then(res=>{
-					//let jiegou;
-					//jiegou = [];
-					//jiegou = res.data.result.songs;
-					this.songlist.push(...res.data.result.songs);
-					console.log(this.songlist)
-					//console.log(jiegou)
-				})
-			}
-		},
+    handleReachBottom () {
+      return new Promise(resolve => {
+        setTimeout(() => {
+          this.offset = this.offset + 30;
+          songlisturl(this.keywords,this.offset).then(res=>{
+            //let jiegou;
+            //jiegou = [];
+            //jiegou = res.data.result.songs;
+            this.songlist.push(...res.data.result.songs);
+            console.log(this.songlist)
+            //console.log(jiegou)
+            resolve();
+          })
+          resolve();
+        }, 2000);
+      });
+    },
+
 		//获取音乐播放的url
 		getmusic(idx,index){
 			//获取到的歌曲url不是我们想要的格式，我们只想获取里面的id
@@ -176,13 +191,13 @@ export default{
 	      let arr1 = {'songname': songname , 'singername': singername , 'id': id}
 	      console.log(recentplaylist);
 	      this.getdetail(idx);
-	      //当点击playlist的播放后，执行panduan方法，获取当前播放音乐在playalllist列表中的位置(下标),获取到下标后，保存到selIndex中
-	      let selIndex = panduan(id);
-	      console.log(selIndex)
+	      
 
 	      // 如果一开始就已经有最近播放的列表，则把原有的列表读取出来，再追加新播放的音乐
 	      // 否则，新建一个recentplaylist本地存储，再将播放的音乐添加进最近播放列表中
-	      latelyplay(recentplaylist,id,arr,arr1)
+	      latelyplay(this.songlist[index].name,
+	      				this.songlist[index].artists[0].name,
+	      					this.songlist[index].id)
 
 	      //实现点击播放音乐后，playlist中改变当前播放音乐的颜色
 		  this.changecolor(index)
@@ -272,7 +287,7 @@ export default{
 	mounted:function(){
 		this.jiaodian();
 		this.gethotsearch();
-		window.addEventListener('scroll',this.scroll)
+    this.clientHeight = document.documentElement.clientHeight;
 	},
 	watch: {
 		//监听搜索关键字的改变，每改变一次都进行一次搜索请求
@@ -337,7 +352,6 @@ export default{
 .search-box{
 	width:100%;
 	height: 100%;
-	
 	clear: both;
 	
 }
@@ -369,14 +383,8 @@ export default{
 	margin-bottom: 10px;
 	padding: 3px;
 }
-
-
-
-
-
 .search-result-box{
 	width: 100%;
-	height:620px;
 	position: absolute;
 	top: 45px;
 	left: 0;
@@ -385,7 +393,7 @@ export default{
 }
 .search-singger-songlist-box{
 	width:100%;
-	min-height:150px;
+	min-height:0px;
 }
 .search-singger-songlist-box p:nth-child(1){
 	color:#d44439;
@@ -454,4 +462,5 @@ export default{
 	overflow: hidden;
 	white-space: nowrap;
 }
+
 </style>

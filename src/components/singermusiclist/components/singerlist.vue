@@ -79,7 +79,7 @@ export default{
 	    playmusic(url,index,idx){
 	      
 	      if(url==null){
-	      	alert('该音乐暂无版权，无法播放！')
+	      	this.$Message.warning('该音乐暂无版权，无法播放！')
 	      }else{
 	      this.flag = true;
 	      document.querySelector('audio').src = url;
@@ -95,7 +95,9 @@ export default{
 
 	      // 如果一开始就已经有最近播放的列表，则把原有的列表读取出来，再追加新播放的音乐
 	      // 否则，新建一个recentplaylist本地存储，再将播放的音乐添加进最近播放列表中
-	      latelyplay(recentplaylist,id,arr,arr1)
+	      latelyplay(this.songlistdetail[index].name,
+	      				this.songlistdetail[index].ar[0].name,
+	      					this.songlistdetail[index].id)
 
 
 	      //实现点击播放音乐后，playlist中改变当前播放音乐的颜色

@@ -23,6 +23,7 @@ import {lunbo} from '../../../api/lunbo.js'
 import {musicplayurl} from '../../../api/playmusicdetail.js'
 import {musicdetail} from '../../../api/playmusicdetail.js'
 import {latelyplay} from '../../../common/common.js'
+import { getSlideshow } from '../../../api/user.js'
 export default{
 	name: 'lunbo',
 	data(){
@@ -49,11 +50,16 @@ export default{
 		},
 		//获取轮播图音乐图片和音乐url的方法
 		getnewsong(){
-			lunbo().then(res => {
-				// console.log(res.bodyText)
-				// console.log(bodyText.banners)
-				this.banners = res.data.banners;
-				// console.log(this.banners)
+			// lunbo().then(res => {
+			// 	// console.log(res.bodyText)
+			// 	// console.log(bodyText.banners)
+			// 	this.banners = res.data.banners;
+			// 	console.log(this.banners)
+			// 	// console.log(this.banners)
+			// })
+			getSlideshow().then( data => {
+				console.log(data.data)
+				this.banners = data.data;
 			})
 		},
 		//获取音乐地址的方法
@@ -87,17 +93,17 @@ export default{
 	      this.flag = true;
 	      document.querySelector('audio').src = url;
 	      	//当进入播放页后，把播放的音乐添加进最近播放列表中
-	      let recentplaylist = JSON.parse(window.localStorage.getItem('recentplaylist'));
-	      let songname = this.$store.state.musicdetail.name;
-	      let singername= this.$store.state.musicdetail.ar[0].name;
-	      let id = idx;
-	      let arr = [{'songname': songname , 'singername': singername , 'id': id}];
-	      let arr1 = {'songname': songname , 'singername': singername , 'id': id}
-	      console.log(recentplaylist);
+	      // let recentplaylist = JSON.parse(window.localStorage.getItem('recentplaylist'));
+	      // let songname = this.$store.state.musicdetail.name;
+	      // let singername= this.$store.state.musicdetail.ar[0].name;
+	      // let id = idx;
+	      // let arr = [{'songname': songname , 'singername': singername , 'id': id}];
+	      // let arr1 = {'songname': songname , 'singername': singername , 'id': id}
+	      // console.log(recentplaylist);
 
 	      // 如果一开始就已经有最近播放的列表，则把原有的列表读取出来，再追加新播放的音乐
 	      // 否则，新建一个recentplaylist本地存储，再将播放的音乐添加进最近播放列表中
-	      latelyplay(recentplaylist,id,arr,arr1)
+	      // latelyplay(recentplaylist,id,arr,arr1)
 
 	      this.$router.push({
 	        path: '/play'
@@ -141,7 +147,7 @@ export default{
 </script>
 <style>
 .lunbo{
-	width: 90%;
+	width: 100%;
 	height: 100%;
 	padding: 2% 5% 0 5%;
 	background-color: #d44439;

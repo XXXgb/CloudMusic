@@ -5,21 +5,21 @@
 				<img src="../../../assets/images/fanhui.png">
 			</div>
 			<div>
-				<span @click="mycoollect">我的收藏</span>
-				<span @click="recentplay">最近播放</span>
+				<span v-if="this.$route.query.name == 'myCollect'">我的收藏</span>
+				<span v-if="this.$route.query.name == 'latelyPlay'">最近播放</span>
 			</div>
 		</div>
 		<div class="user-playall-box">
 			<div class="user-playall"><img src="../../../assets/images/playall.png"></div>
-			<div class="user-songall"><span>播放全部</span><span>(共{{mycoollectLength}}首)</span></div>
+			<div class="user-songall"><span>播放全部</span><span>(共{{myCollectLength}}首)</span></div>
 		</div>
 		<div class="user-songlist">
 			<ul>
-				<li v-for="(item,index) in songlist" @click="getmusic(item.id)">
+				<li v-for="(item,index) in songlist" @click="getmusic(item.songId)">
 					<p>{{index+1}}</p>
 					<div>
-						<h3>{{item.songname}}</h3>
-						<p>{{item.singername}}</p>
+						<h3>{{item.songName}}</h3>
+						<p>{{item.singerName}}</p>
 					</div>
 				</li>
 			</ul>
@@ -28,37 +28,49 @@
 </template>
 
 <script>
-
+import { findCollect, getLatelyPlay } from '../../../api/user.js'
 export default{
   	name: 'usertopnav',
     data(){
     	return {
     		songlist: [],
-    		mycoollectLength: 0
+    		myCollectLength: 0
     	}
     },
     methods:{
     	back(){
     		history.go(-1);
     	},
-    	mycoollect(){
-    		//计算我的收藏共有多少首
-    		this.mycoollectLength = (JSON.parse(window.localStorage.getItem('mycoollect'))).length;
-    		//把收藏的音乐取出来
-    		this.songlist = JSON.parse(window.localStorage.getItem('mycoollect'));
+    	findMyCollect(){
+    		let param = JSON.parse(window.sessionStorage.getItem('token'))._id;
+    		findCollect(param).then(res => {
+    			console.log(res)
+    			this.myCollectLength = res.data.length;
+    			this.songlist = res.data;
+    		}).catch( err => {
+    			console.log(err)
+    		})
     	},
-    	recentplay(){
-    		//计算最近播放列表共有多少首歌
-    		this.mycoollectLength = (JSON.parse(window.localStorage.getItem('recentplaylist'))).length;
-    		this.songlist = JSON.parse(window.localStorage.getItem('recentplaylist'));
+    	//获取最近播放音乐
+    	getLatelyPlay(){
+    		let param = JSON.parse(window.sessionStorage.getItem('token'))._id;
+    		getLatelyPlay(param).then(res => {
+    			this.myCollectLength = res.data.length;
+    			this.songlist = res.data;
+    		})
     	},
     	//获取音乐url
     	getmusic(idx){
     		console.log(idx)
     	}
     },
-    created:function(){
-    	this.mycoollect();
+    mounted:function(){
+    	if(this.$route.query.name == 'myCollect'){
+    		this.findMyCollect();
+    	}else if(this.$route.query.name == 'latelyPlay'){
+    		this.getLatelyPlay();
+    	}
+    	
     	
     }
 }

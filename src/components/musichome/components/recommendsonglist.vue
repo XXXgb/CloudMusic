@@ -4,10 +4,9 @@
 			<span>推荐歌单</span>
 		</div>
 		<div class="list-box">
-			<ul>
-				
-					<li v-for="(item,index) in result" v-bind:key="item.id" @click="getsonglistdetail(item.id,index)">
-						
+			<Row>
+				<Col span="8" v-for="(item,index) in result" v-bind:key="item.id" >
+					<div style="box-sizing:border-box;padding: 0 5px;" @click="getsonglistdetail(item.id,index)">
 						<div class="songlist-img">
 							<img v-bind:src="item.picUrl">
 						</div>
@@ -17,10 +16,9 @@
 						<div class="songlist-name">
 							<p>{{item.name}}</p>
 						</div>
-
-					</li>
-				
-			</ul>
+					</div>
+				</Col>
+			</Row>
 		</div>
 	</div>
 	
@@ -29,6 +27,7 @@
 <script>
 import bus from './bus.js'
 import {recommendsonglist} from '../../../api/recommendsonglist.js'
+import { getIndexDetail } from '../../../api/user.js'
 export default{
 	name: 'lunbo',
 	data(){
@@ -48,13 +47,15 @@ export default{
 	methods: {
 		//获取推荐歌单
 		getrecommendsonglist(){
-			recommendsonglist().then(res => {
-				//处理数据
-				console.log(res)
-				this.result = res.data.result;
-				console.log(this.result)
-				
-				
+			// recommendsonglist().then(res => {
+			// 	//处理数据
+			// 	console.log(res)
+			// 	this.result = res.data.result;
+			// 	console.log(this.result);
+			// })
+			//获取本地推荐歌单
+			getIndexDetail().then(res=>{
+				this.result = res.data;
 			})
 		},
 		//当点击推荐歌单时，先把排行榜的名字和背景保存到store中，以便优先list.vue头部优先渲染
@@ -65,7 +66,7 @@ export default{
 			console.log(this.$store.state.priorityRender)
 			this.$router.push({
 					path: '/songlist'
-			})	
+			})
 		},
 		
 		// priorityRender(id,index){
@@ -104,30 +105,12 @@ export default{
 	color: #2e3030;
 	font-size: 14px;
 	font-weight: bolder;
-
 }
 .list-box{
 	width: 100%;
 	margin-top: 10px;
 }
-.list-box ul{
-	padding: 0;
-	margin: 0;
-	border: 0;
-	overflow: hidden;
-	
-}
-.list-box ul li{
-	width:31.33%;
-	height: 190px;
-	list-style: none;
-	float: left;
-	padding: 0 1%;
-	margin: 0;
-	position: relative;
-}
 .songlist-img{
-	
 	margin: 0;
 }
 .songlist-img img{
@@ -138,7 +121,6 @@ export default{
 	font-size:11px;
 	margin: 0;
 	padding:0;
-
 }
 .bfl{
 	padding: 0;
@@ -148,5 +130,8 @@ export default{
 	right: 8px;
 	font-size:10px;
 	color: #f1f1f1;
+}
+.ivu-col-span-8{
+	height:180px;
 }
 </style>

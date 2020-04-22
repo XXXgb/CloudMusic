@@ -1,7 +1,7 @@
-import axios from 'axios'
+import {axiosRequest} from './index.js'
 import {host} from './host.js'
 
 export function lunbo(){
 	const url = host + '/banner'
-	return axios.get(url)
+	return axiosRequest(url)
 }

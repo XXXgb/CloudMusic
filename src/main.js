@@ -15,6 +15,11 @@ import store from './store'
 import VueTouch from 'vue-touch'
 //引入axios
 import axios from 'axios'
+//引入iview
+import ViewUI from 'view-design';
+import 'view-design/dist/styles/iview.css';
+//引入vue-qr
+import VueQr from 'vue-qr';
 
 // 使用轮播插件swiper
 Vue.use(VueAwesomeSwiper, /* { default global options } */)
@@ -24,10 +29,13 @@ Vue.use(VueResource)
 Vue.use(VueTouch, {name: 'v-touch'})
 //使用axios
 Vue.use(axios)
+Vue.use(ViewUI);
 // 在vue原型中定义一个$axios方法
 Vue.prototype.$axios = axios
 
 Vue.config.productionTip = false
+
+
 
 /* eslint-disable no-new */
 new Vue({
@@ -38,9 +46,28 @@ new Vue({
   store
 })
 
+router.beforeEach((to,from,next)=>{
+	//token存在时为已登陆状态，不存在则为未登陆状态
+	let token = JSON.parse(window.sessionStorage.getItem('token'));
+	//判断当前跳转的路由是否需要在登陆状态下才能访问
+	if(to.matched.some(res => res.meta.requireAuth)){
+		//判断是否已经登陆
+		if(token.token){
+			//已登陆，则继续执行
+			next()
+		}else{
+			//未登录，则重定位回登陆注册选择页面
+			next('/')
+		}
+	}else{
+		//无需登陆即可访问的页面，即/login和/register和/这三个页面
+		next();
+	}
+
+
+});
+
 router.afterEach((to,from,next) => {
-
     window.scrollTo(0,0);
-
 })
 

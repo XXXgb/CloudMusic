@@ -26,7 +26,7 @@ export default{
 }
 </script>
 
-<style>
+<style scoped>
 .list-top-nav{
 	position: fixed;
 	top: 0;

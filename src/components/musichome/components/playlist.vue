@@ -4,9 +4,9 @@
 		<div class="playlist-modal">
 			<div class="playlist-modal-order">
 				<div>
-					<span>123</span>
+					<span></span>
 					<span>顺序播放(共{{playalllistLength}}首)</span>
-					<span>213</span>
+					<span></span>
 				</div>
 			</div>
 			<div class="playlist-modal-list nowrapper" ref="abc">
@@ -50,7 +50,6 @@ export default{
 			let height = -(activeindex * 40);
 			this.$nextTick(()=>{
 				const playlistScroll = new BScroll('.nowrapper',{
-					startY:200,
 					stopPropagation:true,
 					preventDefault:true,
 					click:true,
@@ -82,7 +81,6 @@ export default{
 		//获取音乐地址的方法
 		getmusic(idx,index){
 			console.log(idx)
-
 			this.playurl = '';
 			//使用vue-resource调用音乐播放地址的API，获取我们想要的播放地址
 			musicplayurl(idx).then(res => {
@@ -96,17 +94,14 @@ export default{
 		//播放音乐的方法
 	    playmusic(url,index,idx){
 	      let that = this;
+	      this.playalllist = JSON.parse(window.localStorage.getItem('playalllist'));
 	      if(url==null){
-	      	alert('该音乐暂无版权，无法播放！')
+	      	this.$Message.warning('该音乐暂无版权，无法播放！')
 	      	//当音乐播放结束后切换下一首音乐为无版权音乐时，将继续点击下一首音乐，直到有版权为止
-			let playalllist = JSON.parse(window.localStorage.getItem('playalllist'));
-	      	this.getmusic(playalllist[index+1].id,index+1)
+	      	this.getmusic(this.playalllist[index+1].id,index+1)
 	      }else{
 		      this.flag = true;
 		      document.querySelector('audio').src = url;
-		      	//当进入播放页后，把播放的音乐添加进最近播放列表中
-		      let recentplaylist = JSON.parse(window.localStorage.getItem('recentplaylist'));
-		      let songname = this.playalllist[index].name;
 		      let singername;
 		      //歌单列表和歌手列表获取的数据不同，所以这里做一个判断，当前为歌单时，执行ture，为歌手时，执行false
 		      if(this.playalllist[index].artists){
@@ -114,21 +109,18 @@ export default{
 		      }else{
 		      	singername = this.playalllist[index].ar[0].name;
 		      }
-		      
-		      let id = this.playalllist[index].id;
-		      let arr = [{'songname': songname , 'singername': singername , 'id': id}];
-		      let arr1 = {'songname': songname , 'singername': singername , 'id': id}
-		      console.log(recentplaylist);
 		      this.getdetail(idx);
+		      //当进入播放页后，把播放的音乐添加进最近播放列表中
 		      // 如果一开始就已经有最近播放的列表，则把原有的列表读取出来，再追加新播放的音乐
 		      // 否则，新建一个recentplaylist本地存储，再将播放的音乐添加进最近播放列表中
-		      latelyplay(recentplaylist,id,arr,arr1)
-
+		      latelyplay(this.playalllist[index].name,
+		      				singername,
+		      					this.playalllist[index].id)
 		      //获取当前正在播放音乐的索引
 		      let p = panduan(idx);
 		      console.log(p)
 		      //this.$store.state.playlistindex==index，让正在播放的音乐高亮
-		      this.$store.commit('setplaylistindex',id);
+		      this.$store.commit('setplaylistindex',idx);
 		      
 	      }
 

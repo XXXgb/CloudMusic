@@ -23,7 +23,6 @@
 							<p>{{items.artists[0].name}}</p>
 						</div>
 					</li>
-					
 				</ul>
 			</div>
 		</div>
@@ -36,6 +35,7 @@ import {songlistdetail} from '../../../api/songlist.js'
 import {musicplayurl} from '../../../api/playmusicdetail.js'
 import {musicdetail} from '../../../api/playmusicdetail.js'
 import {latelyplay,panduan,playall} from '../../../common/common.js'
+import {addSelfLatelyPlay} from '../../../api/user.js'
 export default{
 	name: 'listbody',
 	data(){
@@ -48,7 +48,8 @@ export default{
 			},
 			playurl: '',
 			detail: [],
-			loadingFlag: false
+			loadingFlag: false,
+			aa: this.$store.state.flag
 		}
 	},
 	methods:{
@@ -58,46 +59,37 @@ export default{
 			this.playurl = '';
 			//使用vue-resource调用音乐播放地址的API，获取我们想要的播放地址
 			musicplayurl(idx).then(res => {
-				console.log(res)
-				// console.log(res.data.data[0].url)
 				//获取可以播放的url地址
 				this.playurl = res.data.data[0].url;
 				this.playmusic(this.playurl,index,idx);
-				// this.playmusic(this.playurl);
-				// this.sendsongid();
-				// this.getdetail(id);
 			})
-			
 		},
 		//播放音乐的方法
 	    playmusic(url,index,idx){
-	      
 	      if(url==null){
-	      	alert('该音乐暂无版权，无法播放！')
+	      	this.$Message.warning('该音乐暂无版权，无法播放！')
 	      }else{
 	      this.flag = true;
 	      document.querySelector('audio').src = url;
-	      	//当进入播放页后，把播放的音乐添加进最近播放列表中
-	      let recentplaylist = JSON.parse(window.localStorage.getItem('recentplaylist'));
-	      let songname = this.songlistdetail.result.tracks[index].name;
-	      let singername= this.songlistdetail.result.tracks[index].artists[0].name;
-	      let id = this.songlistdetail.result.tracks[index].id;
-	      let arr = [{'songname': songname , 'singername': singername , 'id': id}];
-	      let arr1 = {'songname': songname , 'singername': singername , 'id': id};
-	      console.log(recentplaylist);
 	      this.getdetail(idx);
-	      
-	      
-
-
+	      //当进入播放页后，把播放的音乐添加进最近播放列表中
 	      // 如果一开始就已经有最近播放的列表，则把原有的列表读取出来，再追加新播放的音乐
 	      // 否则，新建一个recentplaylist本地存储，再将播放的音乐添加进最近播放列表中
-	      latelyplay(recentplaylist,id,arr,arr1)
+	      //latelyplay(this.songlistdetail.result.tracks[index].name,
+	      //				this.songlistdetail.result.tracks[index].artists[0].name,
+	      //				this.songlistdetail.result.tracks[index].id)
+	      let _id = JSON.parse(window.sessionStorage.getItem('token'))._id;
+	      let songId = this.songlistdetail.result.tracks[index].id;
+	      let songName = this.songlistdetail.result.tracks[index].name;
+	      let singerName = this.songlistdetail.result.tracks[index].artists[0].name;
+	      let addTime = new Date().getTime();
+	      addSelfLatelyPlay({_id,songId,songName,singerName,addTime})
+	      .then( res => {
+	      	console.log(res)
+	      })
 
 	      //实现点击播放音乐后，playlist中改变当前播放音乐的颜色
 		  this.changecolor(idx,index)
-	      
-
 	      this.$router.push({
 	        path: '/play'
 	      })
@@ -123,6 +115,7 @@ export default{
 			this.$store.commit('getsonglistid',this.$store.state.priorityRender.id)
 			// 1.获取歌单
 			// let url = 'http://120.79.162.149:3000/playlist/detail?id=' + this.$store.state.songlistid;
+			console.log(this.$store.state.songlistid)
 			songlistdetail(this.$store.state.songlistid).then(res => {
 				// console.log(res)
 				this.songlistdetail = [];
@@ -159,9 +152,15 @@ export default{
 		}
 
 	},
-		
+	created:function(){
+	},
 	mounted:function(){
     	this.getsonglistdetail();
+  	},
+  	watch:{
+  		"this.$store.state.flag"(){
+  			this.aa = this.$store.state.flag;
+  		}
   	}
 }
 </script>
@@ -215,12 +214,13 @@ export default{
 	margin-right: 5px;
 }
 .list-songname ul li p:nth-child(1){
-	width:15%;
+	width:45px;
+	height:100%;
 	text-align: center;
+	line-height: 60px;
 }
 .list-songname ul li div:nth-child(2){
 	width:80%;
-	height:50px;
 	display: flex;
 	flex-flow: column wrap;
 	justify-content: center;

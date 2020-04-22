@@ -15,18 +15,21 @@
 			<span id="span2" class="play-bottom-playfield-span2 spancolor">00:00</span>
 		</div>
 		<div class="play-bottom-playfield-control">
-			<div><img src="../../../assets/images/next.png"></div>
-			<div><img src="../../../assets/images/up.png" ref="up"></div>
+			<div><img src="../../../assets/images/comments.png" @click.stop.prevent="goComments()"></div>
+			<div><img src="../../../assets/images/up.png" ref="up" @click.stop.prevent="goUp()"></div>
 			<div><img src="../../../assets/images/play.png" @click.stop.prevent="play" ref="play" v-if="this.$store.state.playFlag"><img src="../../../assets/images/pause.png" @click.stop.prevent="stop" ref="stop" v-if="!this.$store.state.playFlag">
 			</div>
-			<div><img src="../../../assets/images/next.png"></div>
+			<div><img src="../../../assets/images/next.png" @click.stop.prevent="goNext()"></div>
 			<div><img src="../../../assets/images/coollect.png" @click="coollect"></div>
 		</div>
 	</div>
 </template>
 
 <script>
-
+import {panduan, latelyplay} from '../../../common/common.js'
+import {musicplayurl} from '../../../api/playmusicdetail.js'
+import {musicdetail} from '../../../api/playmusicdetail.js'
+import {addCollect} from '../../../api/user.js'
 export default{
 	name: 'playbottomplayfield',
 	data(){
@@ -34,7 +37,11 @@ export default{
 			topvalue: 0,
 			totaltime: 0,
 			duration: '',
-			currentTime: ''
+			currentTime: '',
+			playurl: '',
+			detail: [],
+			flag: false,
+			playalllist: [],
 		}
 	},
 	methods:{
@@ -75,13 +82,6 @@ export default{
 				this.duration = zong;
 				this.currentTime = yi;
 				w = (yi/zong).toFixed(3);
-				// 如果播放完毕，将播放暂停的按钮设置为暂停
-				//if(yi >= zong){
-					//that.$refs.stop.src = '../../../../static/play.png'
-					//that.playFlag = !that.playFlag;
-					//clearInterval(a);
-
-				//}
 				//计算小球和进度条移动的位移
 				f = w*200;
 				if(yi == zong){
@@ -96,6 +96,7 @@ export default{
 				}else{
 					yibofang.style.width = f + 'px';
 					qiubox.style.left = f + 'px';
+					that.$store.commit('getPlayProgress',w)
 					//格式化总时间
 					if(zong > -1 && zong != 'undefined'){
 						time = '';
@@ -120,6 +121,7 @@ export default{
 						time = min1 + ":" + sec1;
 						span2.innerHTML = time;
 						span1.innerHTML = timed;
+
 					}else{
 						// console.log("no")
 					}
@@ -216,8 +218,6 @@ export default{
 			}
 			document.ontouchend = function(e){
 				document.ontouchmove = null;
-				
-				
 			}
 		},
 		stopmusic(){
@@ -230,54 +230,125 @@ export default{
 			console.log('点击了播放按钮')
 			let audio = document.getElementById('audio');
 			audio.play();
-			this.$store.commit('changePlayFlag',false)
 		},
 		//音乐暂停的方法
 		stop(){
 			console.log('点击了暂停按钮')
 			let audio = document.getElementById('audio');
 			audio.pause();
-			this.$store.commit('changePlayFlag',true)
 		},
 		//音乐收藏
 		coollect(){
-			//每次收藏前，先读取原本收藏的音乐，在数组后追加收藏
-			let mycoollect = JSON.parse(window.localStorage.getItem('mycoollect'));
-			console.log(mycoollect);
-			let songname = this.$store.state.musicdetail.name;
-			let singername = this.$store.state.musicdetail.ar[0].name;
-			let id = this.$store.state.musicdetail.id;
-			let arr = [{'songname': songname , 'singername': singername , 'id': id}];
-			let arr1 = {'songname': songname , 'singername': singername , 'id': id};
+			let songName = this.$store.state.musicdetail.name;
+			let singerName = this.$store.state.musicdetail.ar[0].name;
+			let songId = this.$store.state.musicdetail.id;
+			let _id = JSON.parse(window.sessionStorage.getItem('token'))._id;
+			let addTime = new Date().getTime();
+			console.log(_id)
 			//如果已有收藏时，在原收藏后追加
-			if(mycoollect){
-				//判断当前音乐是否已经收藏了，如果是，则取消收藏，如果未收藏，则收藏
-				let mycoollectFlag = mycoollect.findIndex((item,index) => item.id == id)
-				if(mycoollectFlag == '-1'){
-					mycoollect.unshift(arr1);
-					//判断出当前音乐还未收藏过，所以执行收藏操作，在数组尾部添加收藏音乐
-					window.localStorage.setItem('mycoollect',JSON.stringify(mycoollect));
-					alert('已收藏')
-				}else{
-					//判断出当前音乐已经收藏过了，所以执行取消收藏操作，将数组中对应的音乐删除
-					mycoollect.splice(mycoollectFlag,1);
-					//删除完毕后，将新的数组更新
-					window.localStorage.setItem('mycoollect',JSON.stringify(mycoollect));
-					alert('已取消收藏')
+			addCollect({_id,songId,songName,singerName,singerName,addTime})
+			.then( res => {
+				if(res.data.err === 0){
+					this.$Message.success('收藏成功')
+				}else if(res.data.err === 1){
+					this.$Message.success('已取消收藏')
 				}
-			}else{
-			//如果没有收藏的音乐，自己创建一个mycoollect本地存储收藏音乐
-				window.localStorage.setItem('mycoollect',JSON.stringify(arr));
-			}
+			})
 			
 		},
+		//上一首
+		goUp(){
+			let p = panduan(this.$store.state.musicdetail.id);
+			let index = p.selIndex;
+			let playalllist = JSON.parse(window.localStorage.getItem('playalllist'));
+			this.getmusic(playalllist[index-1].id,index-1)
+			this.$store.commit('setendflag',true)
+		},
+		//下一首
+		goNext(){
+			let p = panduan(this.$store.state.musicdetail.id);
+			let index = p.selIndex;
+			let playalllist = JSON.parse(window.localStorage.getItem('playalllist'));
+			this.getmusic(playalllist[index+1].id,index+1)
+			this.$store.commit('setendflag',true)
+		},
+		//获取音乐地址的方法
+		getmusic(idx,index){
+			console.log(idx)
+			this.playurl = '';
+			//使用vue-resource调用音乐播放地址的API，获取我们想要的播放地址
+			musicplayurl(idx).then(res => {
+				console.log(res)
+				// console.log(res.data.data[0].url)
+				//获取可以播放的url地址
+				this.playurl = res.data.data[0].url;
+				this.playmusic(this.playurl,index,idx);
+			})
+		},
+		//播放音乐的方法
+	    playmusic(url,index,idx){
+	      let that = this;
+	      this.playalllist = JSON.parse(window.localStorage.getItem('playalllist'));
+	      if(url==null){
+	      	this.$Message.warning('该音乐暂无版权，无法播放！')
+	      	//当音乐播放结束后切换下一首音乐为无版权音乐时，将继续点击下一首音乐，直到有版权为止
+	      	this.getmusic(playalllist[index+1].id,index+1)
+	      }else{
+		      this.flag = true;
+		      document.querySelector('audio').src = url;
+		      let singername;
+		      //歌单列表和歌手列表获取的数据不同，所以这里做一个判断，当前为歌单时，执行ture，为歌手时，执行false
+		      if(this.playalllist[index].artists){
+		      	singername = this.playalllist[index].artists[0].name;
+		      }else{
+		      	singername = this.playalllist[index].ar[0].name;
+		      }
+		      this.getdetail(idx);
+		      //当进入播放页后，把播放的音乐添加进最近播放列表中
+		      // 如果一开始就已经有最近播放的列表，则把原有的列表读取出来，再追加新播放的音乐
+		      // 否则，新建一个recentplaylist本地存储，再将播放的音乐添加进最近播放列表中
+		      latelyplay(this.playalllist[index].name,
+		      				singername,
+		      					this.playalllist[index].id)
+		      //获取当前正在播放音乐的索引
+		      let p = panduan(idx);
+		      console.log(p)
+		      //this.$store.state.playlistindex==index，让正在播放的音乐高亮
+		      this.$store.commit('setplaylistindex',idx);
+		      
+	      }
+
+	      
+		},
+		//获取所播放音乐的详情(背景图片和歌名)的方法
+		getdetail(id){
+			//let url = 'http://120.79.162.149:3000/song/detail?ids=' + id
+			musicdetail(id).then(res=>{
+				//此时detail中存放的有背景图和歌名
+				this.detail = res.data.songs[0];
+				//获取到音乐详情后，保存到store的musicdetail中
+				console.log(res.data.songs[0])
+				this.abc(this.detail);
+
+			})
+		},
+		abc(detail){
+			this.$store.commit('bcd',detail)
+		},
+		//跳转到评论页面
+		goComments(){
+			let musicDetail = { "songId": this.$store.state.musicdetail.id,
+								"songName": this.$store.state.musicdetail.name,
+								"singerName": this.$store.state.musicdetail.ar[0].name}
+			window.sessionStorage.setItem('musicDetail', JSON.stringify(musicDetail));
+			this.$router.push('/comments');
+		}
 
 		
 		
 	},
 	mounted:function(){
 		this.move();
-
 	},
 	
 	

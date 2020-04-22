@@ -28,15 +28,12 @@ export default{
 		playbottomplayfield
 	},
 	methods:{
-		//让播放栏升起
-		changeflag(){
-			let flag = true;
-			this.$store.commit('sq',flag);
-			console.log(this.$store.state.flag)
-		}
+		
 	},
 	mounted:function(){
-		this.changeflag();
+		//隐藏播放栏
+		let flag = false;
+		this.$store.commit('sq',flag);
 	}
 	
 }
