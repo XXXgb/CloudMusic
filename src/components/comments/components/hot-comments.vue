@@ -1,5 +1,15 @@
 <template>
 	<div style="position: absolute;top: 44px;width: 100%;background-color: #f2f3f4;">
+    <Scroll :on-reach-bottom="handleReachBottom" :height="clientHeight" loading-text="奋力加载中">
+    <div class="comments-top-nav">
+      <div class="comments-fanhui" @click="back">
+        <img src="../../../assets/images/back.png">
+      </div>
+      <div>
+        <span>评论（{{total}}）</span>
+      </div>
+    </div>
+
 		<div>
 			<span style="margin-left: 10px;font-weight: 600;font-size: 14px;margin-left: 10px;font-weight: 600;letter-spacing: 1px;">我的评论</span>
 			<div class="hot-comments-box" v-for="(item,index) in myComments.result">
@@ -50,10 +60,11 @@
 				</div>
 			</div>
 		</div>
-		<div style="position: sticky;bottom:0px;background-color: #f2f3f4;opacity: 1;height: 40px;display:flex;align-items:center;border-top:1px solid rgb(223, 205, 205);padding:0 10px;justify-content:space-between;">
+		<div style="width:100%;position: fixed;bottom:0px;background-color: #f2f3f4;opacity: 1;height: 40px;display:flex;align-items:center;border-top:1px solid rgb(223, 205, 205);padding:0 10px;justify-content:space-between;">
 			<textarea style="height:20px;width:65%;line-height: 20px;resize:none;border-radius:5px;background-color: #f2f3f4;border: none;font-size:12px;" placeholder="这一次也许就是你上热评了" v-model="commentValue" maxlength="200"></textarea>
 			<span style="color:#ccc;font-size:14px;" @click="addMyComments()">发送</span>
 		</div>
+    </Scroll>
 	</div>
 </template>
 
@@ -70,7 +81,8 @@ export default{
 			offset: 0,
 			loaded: false,
 			commentValue: '',
-			myComments: ''
+			myComments: '',
+      clientHeight: ''
 		}
 	},
 	filters:{
@@ -112,14 +124,16 @@ export default{
 		}
 	},
 	mounted:function(){
+    this.clientHeight = document.documentElement.clientHeight;
 		//每次刷新或进入页面，将最新评论的条数统一为20条
 		this.offset = 0;
 		this.getComments();
-		//添加页码滚动监听，实现页面触底加载更多
-		window.addEventListener('scroll',this.more)
 		this.getMyComments();
 	},
 	methods:{
+    back(){
+      history.go(-1);
+    },
 		//查询个人评论
 		getMyComments(){
 			let _id = JSON.parse(window.sessionStorage.getItem('token'))._id;
@@ -181,35 +195,46 @@ export default{
 
 			})
 		},
-		more(){
-			if(this.loaded){
-				console.log('loaded:'+this.loaded)
-				return
-			}else{
-				console.log('loaded:'+this.loaded)
-				let that = this;
-				let scrollTop = document.documentElement.scrollTop;  //文档高度
-				let offsetHeight = document.documentElement.offsetHeight;  //可视化窗口高度
-				let scrollHeight = document.documentElement.scrollHeight;  //滚动条滚动高度
-				//限流
-				this.loaded = true;
-				if(scrollHeight<=scrollTop+offsetHeight+20){
-					//触底加载多20条评论
-					console.log('大于了111')
-					this.offset += 20;  //每次触底加载下一页
-					console.log('offset:'+this.offset)
-					this.getComments();
-				}else{
-					this.loaded = false;
-				}
-			}
-			
-		}
+
+    handleReachBottom () {
+      return new Promise(resolve => {
+        setTimeout(() => {
+          this.offset += 20;  //每次触底加载下一页
+          this.getComments();
+          resolve();
+        }, 2000);
+      });
+    },
+
 	},
 }
 </script>
 
 <style>
+  .comments-top-nav{
+    position: fixed;
+    top: 0;
+    width: 100%;
+    height: 44px;
+    display: flex;
+    flex-flow: row wrap;
+    align-items:center;
+    background-color: #f2f3f4;
+    z-index: 9999;
+  }
+  .comments-fanhui{
+    width: 25px;
+    height: 25px;
+    margin-left: 10px;
+  }
+  .comments-fanhui img{
+    width: 100%;
+    height: 100%;
+  }
+  .comments-top-nav div:nth-child(2){
+    margin-left: 5px;
+    color: #000;
+  }
 .hot-comments-box{
 	width: 100%;
 	min-height: 80px;

@@ -1,6 +1,6 @@
 <template>
 	<div class="comments">
-		<topnav></topnav>
+		<!--<topnav></topnav>-->
 		<hotcomments></hotcomments>
 	</div>
 </template>
