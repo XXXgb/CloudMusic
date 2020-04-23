@@ -17,6 +17,7 @@ const selectLAG = () => import('@/components/selectLAG/selectLAG.vue')
 const login = () => import('@/components/login/login.vue')
 const register = () => import('@/components/register/register.vue')
 const comments = () => import('@/components/comments/comments.vue')
+const userInfo = () => import('@/components/userInfo/userInfo.vue')
 
 
 
@@ -24,102 +25,19 @@ Vue.use(Router)
 
 export default new Router({
   routes: [
-    {
-      path: '/musichome',
-      name: 'musichome',
-      component: musichome,
-      meta: { 
-      requireAuth: true
-      },
-    },
-    {
-      path: '/gosearch',
-      name: 'gosearch',
-      component: gosearch,
-      meta: { 
-      requireAuth: true
-      },
-    },
-    {
-      path: '/paihang',
-      name: 'paihang',
-      component: paihang,
-      meta: { 
-      requireAuth: true
-      },
-    },
-    {
-      path: '/songlist',
-      name: 'songlist',
-      component: songlist,
-      meta: { 
-      requireAuth: true
-      },
-    },
-    {
-      path: '/play',
-      name: 'play',
-      component: play,
-      meta: { 
-      requireAuth: true
-      },
-    },
-    {
-      path: '/user',
-      name: 'user',
-      component: user,
-      meta: { 
-      requireAuth: true
-      },
-    },
-    {
-      path: '/singermusiclist',
-      name: 'singermusiclist',
-      component: singermusiclist,
-      meta: { 
-      requireAuth: true
-      },
-    },
-    {
-      path: '/singer',
-      name: 'singer',
-      component: singer,
-      meta: { 
-      requireAuth: true
-      },
-    },
-    {
-      path: '/',
-      name: 'selectLAG',
-      component: selectLAG,
-      meta: { 
-      requireAuth: false
-      },
-    },
-    {
-      path: '/login',
-      name: 'login',
-      component: login,
-      meta: { 
-      requireAuth: false
-      },
-    },
-    {
-      path: '/register',
-      name: 'register',
-      component: register,
-      meta: { 
-      requireAuth: false
-      },
-    },
-    {
-      path: '/comments',
-      name: 'comments',
-      component: comments,
-      meta: { 
-      requireAuth: true
-      },
-    },
+    {path: '/',name: 'selectLAG',component: selectLAG,meta: {requireAuth: false,name: 'selectLAG'}},
+    {path: '/login',name: 'login',component: login,meta: {requireAuth: false,name: 'login'}},
+    {path: '/register',name: 'register',component: register,meta: {requireAuth: false,name: 'register'}},
+    {path: '/musichome',name: 'musichome',component: musichome,meta: { requireAuth: true,name: 'musichome'}},
+    {path:'/gosearch',name: 'gosearch',component: gosearch,meta: {requireAuth: true,name: 'gosearch'}},
+    {path: '/paihang',name: 'paihang',component: paihang,meta: {requireAuth: true,name: 'paihang'}},
+    {path: '/songlist',name: 'songlist',component: songlist, meta: {requireAuth: true,name: 'songlist'}},
+    {path: '/play',name: 'play',component: play,meta: {requireAuth: true,name: 'play'}},
+    {path: '/user',name: 'user',component: user,meta: {requireAuth: true,name: 'user'}},
+    {path: '/singermusiclist',name: 'singermusiclist',component: singermusiclist,meta: {requireAuth: true,name: 'singermusiclist'}},
+    {path: '/singer',name: 'singer',component: singer,meta: {requireAuth: true,name: 'singer'}},
+    {path: '/comments',name: 'comments',component: comments,meta: {requireAuth: true,name: 'comments'}},
+    {path: '/userInfo',name: 'userInfo',component: userInfo,meta: {requireAuth: true,name: 'userInfo'}},
   ]
 })
 

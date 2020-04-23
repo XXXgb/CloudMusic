@@ -20,6 +20,8 @@ import ViewUI from 'view-design';
 import 'view-design/dist/styles/iview.css';
 //引入vue-qr
 import VueQr from 'vue-qr';
+//路由卫士
+import '@/router/router-tackled.js';
 
 // 使用轮播插件swiper
 Vue.use(VueAwesomeSwiper, /* { default global options } */)
@@ -46,7 +48,7 @@ new Vue({
   store
 })
 
-router.beforeEach((to,from,next)=>{
+/*router.beforeEach((to,from,next)=>{
 	//token存在时为已登陆状态，不存在则为未登陆状态
 	let token = JSON.parse(window.sessionStorage.getItem('token'));
 	//判断当前跳转的路由是否需要在登陆状态下才能访问
@@ -65,7 +67,27 @@ router.beforeEach((to,from,next)=>{
 	}
 
 
-});
+});*/
+
+/*router.beforeEach((to, from, next) => {
+  //判断是否需要验证
+  if(to.meta.requireAuth) {
+    //通过sessionStorage判断是否已登录
+    if(sessionStorage.getItem('token') == null) {
+      console.log(1111);
+      console.log(from)
+      next({path: '/login'})
+    } else {
+      console.log(222);
+      console.log(from)
+      next();
+    }
+  } else {
+    console.log(from)
+    next()
+  }
+
+});*/
 
 router.afterEach((to,from,next) => {
     window.scrollTo(0,0);
