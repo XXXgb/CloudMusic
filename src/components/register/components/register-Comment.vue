@@ -18,7 +18,7 @@
       <div style="position: fixed; bottom: 20px;width:240px;border-top: 1px solid #fff;">
 				<span style="display: flex;justify-content: center;padding-top: 10px;">
 					<router-link to="/login">
-						<span style="margin:0 atuo;color:#fff;letter-spacing:2px;">登陆</span>
+						<span style="margin:0 auto;color:#fff;letter-spacing:2px;">登陆</span>
 					</router-link>
 				</span>
       </div>
@@ -30,6 +30,7 @@
 import {userCheckout,passwordLengthFormatCheckout,phoneCheckout} from '../../../common/common.js'
 import {registerAPI} from '../../../api/user.js'
 import checkoutCodeTemp from './checkoutCode.vue'
+import util from '../../../util/util.js'
 export default{
   	name: 'registerComment',
   	components:{
@@ -54,42 +55,43 @@ export default{
     		let user = this.user.trim();
     		let password = {password:this.password.trim()}
     		let phoneNumber = this.phoneNumber.trim();
+    		let addTime = util.dateFormater('YYYY-MM-DD',new Date())
     		//校验用户名是否有空白字符或中文字符
     		userCheckout(user)
-			.then((res)=>{
-				if(res.err === 0){
-					//校验密码长度、格式是否合法
-					return passwordLengthFormatCheckout(password)
-				}else{
-					this.$Message.error(res.msg);
-				}
-			})
-			.then((res)=>{
-				if(res.err === 0){
-					//校验输入的手机号码是否合法
-					return phoneCheckout(phoneNumber)
-				}else{
-					this.$Message.error(res.msg);
-				}
-			})
-			.then((res)=>{
-				if(res.err==0){
-					//当全部验证完成后，发起注册请求
-					return registerAPI({user:user,password:this.password,phoneNumber:phoneNumber})
-				}else{
-					this.$Message.error(res.msg)
-				}
-			})
-			.then((res)=>{
-				if(res.data.err === 0){
-					this.$Message.success(res.data.msg)
-				}else{
-					this.$Message.error(res.data.msg)
-				}
-			})
-			.catch((res)=>{
-				
-			})
+        .then((res)=>{
+          if(res.err === 0){
+            //校验密码长度、格式是否合法
+            return passwordLengthFormatCheckout(password)
+          }else{
+            this.$Message.error(res.msg);
+          }
+        })
+        .then((res)=>{
+          if(res.err === 0){
+            //校验输入的手机号码是否合法
+            return phoneCheckout(phoneNumber)
+          }else{
+            this.$Message.error(res.msg);
+          }
+        })
+        .then((res)=>{
+          if(res.err==0){
+            //当全部验证完成后，发起注册请求
+            return registerAPI({user:user,password:this.password,phoneNumber:phoneNumber,addTime:addTime})
+          }else{
+            this.$Message.error(res.msg)
+          }
+        })
+        .then((res)=>{
+          if(res.data.err === 0){
+            this.$Message.success(res.data.msg)
+          }else{
+            this.$Message.error(res.data.msg)
+          }
+        })
+        .catch((res)=>{
+
+        })
     	},
     }
 }

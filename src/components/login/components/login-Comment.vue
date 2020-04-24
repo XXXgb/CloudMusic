@@ -13,7 +13,7 @@
 			<div style="position: fixed; bottom: 20px;width:240px;border-top: 1px solid #fff;">
 				<span style="display: flex;justify-content: center;padding-top: 10px;">
 					<router-link to="/register">
-						<span style="margin:0 atuo;color:#fff;letter-spacing:2px;">注册账号</span>
+						<span style="margin:0 auto;color:#fff;letter-spacing:2px;">注册账号</span>
 					</router-link>
 				</span>
 			</div>
@@ -41,7 +41,7 @@ export default{
 				.then((data)=>{
 					console.log(data)
 					if(data.data.err==0){
-						this.$Message.success('登陆成功')
+						this.$Message.success = data.data.msg;
 						//登陆成功后，将token保存到localstorage中，以便后续查询操作验证登陆状态
 						window.sessionStorage.setItem('token',JSON.stringify(data.data));
 						this.$router.push({
@@ -54,7 +54,7 @@ export default{
     		}else{
     			this.$Message.warning('用户名或密码不能为空！');
     		}
-    		
+
     	}
     },
 }

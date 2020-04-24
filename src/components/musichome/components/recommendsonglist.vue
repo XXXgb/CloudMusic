@@ -11,7 +11,7 @@
 							<img v-bind:src="item.picUrl">
 						</div>
 						<!-- 此处对播放量做一个过滤器，把超过一万播放量的歌单，过滤掉后4位，用万字替代，比较简洁美观 -->
-						<p class="bfl" v-if="item.playCount>10000">{{item.playCount | count}}万</p>
+						<p class="bfl" v-if="item.playCount>10000"><Icon type="ios-musical-notes-outline" style="margin-right: 2px;" />{{item.playCount | count}}万</p>
 						<p class="bfl" v-if="item.playCount<10000">{{item.playCount}}</p>
 						<div class="songlist-name">
 							<p>{{item.name}}</p>

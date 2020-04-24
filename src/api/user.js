@@ -69,8 +69,20 @@ export function getLatelyPlay(data){
 	return axios.get(url)
 }
 
-//修改个人信息
+//修改登陆密码
 export function changePassword(data){
 	const url = host2 + '/user/changePassword'
 	return axios.post(url,qs.stringify(data))
+}
+
+//查询个人信息
+export function getUserInfo(data){
+  const url = host2 + `/user/getSelfInfo?_id=${data}`
+  return axios.get(url)
+}
+
+//修改个人信息
+export function changeSelfInfo(data){
+  const url = host2 + '/user/changeSelfInfo'
+  return axios.post(url,qs.stringify(data))
 }

@@ -29,7 +29,7 @@
         				<span style="color:#bb6d74;">最近播放</span>
 	        		</div>
 	        	</Col>
-	        	<Col span="24" class="user-info-tab">
+	        	<Col span="24" class="user-info-tab" @click.native=" $router.push({ path: '/userInfo'}) ">
 	        		<Icon type="logo-pinterest" size="30" style="margin-left:10px;color:#a97ac6;"/>
 	        		<span style="color: #a97ac6;margin-left: 10px;font-size:16px;">个人信息</span>
 	        	</Col>
