@@ -1,16 +1,16 @@
 <template>
 	<div class="nav">
 		 <!--<router-link to="/user">-->
-			 <div class="search-user">
-			 	<img src="../../../assets/images/gang.png" @click="openUser">
+			 <div class="user-info-container" @click="openUser">
+         <Icon type="ios-contact"  size="25" color="#ddd"/>
 			 </div>
+      <div class="search-container">
+        <router-link to="/gosearch">
+          <Icon type="ios-search" size="25" color="#ddd"/>
+        </router-link>
+      </div>
 		 <!--</router-link>-->
-		 <div class="nav-music">Cloud Music</div>
-		 <router-link to="/gosearch">
-			 <div class="searchdiv">
-			 	<input type="text" placeholder="搜索" id="search">
-			 </div>
-		 </router-link>
+		 <div class="nav-music">Cloud <Icon type="md-cloud-outline" size="25" color="#fff"/> Music</div>
 		 <Drawer placement="left" :closable="false" v-model="drawerValue">
 	        <Row style="height: 100%;">
 	        	<Col span="24" style="height: 150px;display:flex;justify-content: center;align-items: center;flex-direction:column;border-bottom: 1px solid #e8e8e8;background-color: #f7f3f3;">
@@ -79,7 +79,6 @@ export default{
 	components: { VueQr },
 	data(){
 		return {
-			v: document.querySelector('#search'),
 			drawerValue: false,
 			shareWebModalValue:false,
 			config:{
@@ -181,7 +180,7 @@ export default{
 <style scoped>
 .nav{
 	width:100%;
-	height:70px;
+	height:35px;
 	background-color: #d44439;
 	float: left;
 }
@@ -197,30 +196,26 @@ export default{
 	font-size: 14px;
 	
 }
-.searchdiv{
-	width:95%;
-	height: 30px;
-	margin: 5px auto;
-	background-color: #d44439;
-}
 .nav-music{
 	font-size: 16px;
 	color:#fff;
 	text-align: center;
 	padding: 5px 0;
 }
-.search-user{
+.user-info-container{
 	width: 25px;
 	height: 25px;
 	position: absolute;
 	top: 5px;
 	left: 10px;
 }
-.search-user img{
-	width: 100%;
-	height: 100%;
+.search-container{
+  width: 25px;
+  height: 25px;
+  position: absolute;
+  top: 5px;
+  right: 10px;
 }
-
 .user-info-nav{
 	width: 50%;
 	height: 100%;

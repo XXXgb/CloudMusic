@@ -253,4 +253,24 @@ input,textarea{
 .ivu-drawer-body{
 	padding: 0;
 }
+/*搜索页input框样式*/
+.searchmusic .ivu-input{
+  width:100%;
+  height: 80%;
+  background-color: #d44439;
+  border: none;
+  border-bottom: 1px solid #f2f3f4;
+  border-radius: 0px;
+  margin: 0 auto;
+  padding-left: 2%;
+  color: #fff;
+  font-size: 14px;
+}
+.searchmusic .ivu-input:focus{
+  outline:none;
+  box-shadow: 0 0 0 2px transparent;
+}
+.searchmusic .ivu-input-icon{
+  color:#f2f2f3;
+}
 </style>

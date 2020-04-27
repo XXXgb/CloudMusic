@@ -2,13 +2,11 @@
 	<div class="search-box">
 		<div class="searchinput-box">
 			<div class="imgstyle fanhui" @click="back">
-				<img src="../../../assets/images/fanhui.png">
+        <Icon type="md-arrow-back" size="25" color="#f2f2f3"/>
 			</div>
 			<div class="searchmusic">
-				<input type="text" placeholder="搜索音乐、歌词、歌单" id="searchmusic" ref="searchmusic" v-model="keywords">
-			</div>
-			<div class="imgstyle cha" @click="removecontent">
-				<img src="../../../assets/images/cha.png">
+        <Input v-model="keywords" id="searchmusic" clearable ref="searchmusic" placeholder="搜索音乐、歌词、歌单" @on-clear="removecontent" />
+				<!--<input type="text" placeholder="搜索音乐、歌词、歌单" id="searchmusic" ref="searchmusic" v-model="keywords">-->
 			</div>
 		</div>
 		<div class="hotsearch-wai" v-if="!keywords">
@@ -78,11 +76,7 @@ export default{
 	},
 	methods:{
 		removecontent(){
-			this.keywords = '';
 			this.songlist = '';
-		},
-		jiaodian(){
-			this.$refs.searchmusic.focus();
 		},
 		//回退到上一页
 		back(){
@@ -283,7 +277,6 @@ export default{
 		}
 	},
 	mounted:function(){
-		this.jiaodian();
 		this.gethotsearch();
     if(this.$store.state.flag){
       this.clientHeight = document.documentElement.clientHeight - 115;
@@ -302,7 +295,7 @@ export default{
 }
 </script>
 
-<style>
+<style scoped>
 .searchinput-box{
 	width:100%;
 	height:45px;
@@ -322,11 +315,6 @@ export default{
 	left: 1%;
 	top: 25%;
 }
-.cha{
-	position: absolute;
-	right: 2%;
-	top: 25%;
-}
 .imgstyle img{
 	width:100%;
 	height: 100%;
@@ -334,7 +322,7 @@ export default{
 }
 .searchmusic{
 	float: left;
-	width:76%;
+	width:85%;
 	height: 80%;
 	padding-left: 2%;
 	position: absolute;
@@ -344,9 +332,10 @@ export default{
 .searchmusic input{
 	width:100%;
 	height: 80%;
-  	background-color: #d44439;
+  background-color: #d44439;
 	border: none;
 	border-bottom: 1px solid #f2f3f4;
+  border-radius: 0px;
 	margin: 0 auto;
 	padding-left: 2%;
 	color: #fff;
