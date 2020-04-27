@@ -26,7 +26,9 @@ export default{
 		//当页面滚动时，top-nav组件的透明度从0逐渐增加到1
 		changeOpcity(){
 			//获取滚动条距离顶部的距离
-			let scrollTop = document.documentElement.scrollTop;
+      //微信浏览器无法监听到document.documentElement.scrollTop获取到的文档高度
+      //以下写法兼容了所有浏览器文档高度的监听
+      let scrollTop = document.documentElement.scrollTop || window.pageYOffset || document.body.scrollTop;
 			//当滚动条向下滚动时，计算透明度变化值，到滚动到距离顶部200的位置，透明度到达1，此时透明度不会再变化
 			let opcityValue = scrollTop/200;
 			let flag = true;

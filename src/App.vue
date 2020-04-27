@@ -146,7 +146,9 @@ input,textarea{
 }
 .playfield{
   position: fixed;
-  bottom: 0;
+  -moz-bottom: 0px;
+  -webkit-bottom: -2px;
+  bottom: -2px;
   width:100%;
   height: 70px;
   background-color: hsla(0,0%,100%,0.85);

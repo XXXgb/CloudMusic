@@ -1,13 +1,9 @@
 <template>
 	<div class="playlist-box" v-show="toggleFlag">
-		<div class="playlist-cover" @click.stop.prevent="toggleplaylist"></div>
+		<div class="playlist-cover" @click.stop.prevent="toggleplaylist" :style="{height: toggleFlag ? coverHeight : '100%'}"></div>
 		<div class="playlist-modal">
 			<div class="playlist-modal-order">
-				<div>
-					<span></span>
-					<span>顺序播放(共{{playalllistLength}}首)</span>
-					<span></span>
-				</div>
+					<span>顺序播放（共{{playalllistLength}}首）</span>
 			</div>
 			<div class="playlist-modal-list nowrapper" ref="abc">
 				<ul class="content">
@@ -38,9 +34,13 @@ export default{
 			playalllistLength: 0,
 			playurl: '',
 			flag: false,
-			detail: []
+			detail: [],
+      coverHeight: '0px',
 		}
 	},
+  mounted:function(){
+    this.getplayalllist();
+  },
 	methods:{
 		//初始化better-scroll
 		initBscroll(){
@@ -66,6 +66,7 @@ export default{
 			if(this.toggleFlag){
 				//禁用
 				document.body.parentNode.style.overflow = "hidden";
+				console.log(this.coverHeight)
 			}else{
 				//启用
 				document.body.parentNode.style.overflow = "auto";
@@ -181,9 +182,7 @@ export default{
 		}
 
 	},
-	mounted:function(){
-		this.getplayalllist();
-	},
+
 	watch:{
 		computedEndFlag(newVal,oldVal){
 			if(newVal == false){
@@ -201,7 +200,9 @@ export default{
 			
 		},
 		toggleFlag(newVal,oldVal){
+		  console.log(newVal)
 			if(newVal){
+        this.coverHeight = document.documentElement.scrollHeight + 'px';
 				this.initBscroll();
 			}
 		}
@@ -226,7 +227,6 @@ export default{
 }
 .playlist-cover{
 	width:100%;
-	height:100%;
 	z-index: 5000;
 	background: rgba(0,0,0,0.4);
 	position: absolute;
@@ -246,9 +246,7 @@ export default{
 	overflow: hidden;
 }
 .playlist-modal-order{
-	width:80%;
-	height:25px;
-	padding: 15px 10% 10px 10%;
+	padding: 15px 0 10px 30px;
 }
 .playlist-modal-order div{
 }

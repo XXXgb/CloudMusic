@@ -1,20 +1,15 @@
 <template>
 	<div style="position: absolute;top: 44px;width: 100%;background-color: #f2f3f4;">
-    <Scroll :on-reach-bottom="handleReachBottom" :height="clientHeight" loading-text="奋力加载中">
     <div class="comments-top-nav">
-      <div class="comments-fanhui" @click="back">
-        <img src="../../../assets/images/back.png">
-      </div>
-      <div>
-        <span>评论（{{total}}）</span>
-      </div>
+      <span  @click="back" style="margin: 0 5px;"><Icon type="md-arrow-back" size="25"/></span>
+      <span style="font-size: 18px;">评论（{{total}}条）</span>
     </div>
-
-		<div>
+    <Scroll :on-reach-bottom="handleReachBottom" :height="clientHeight" loading-text="奋力加载中">
+		<div v-if="myComments.result">
 			<span style="margin-left: 10px;font-weight: 600;font-size: 14px;margin-left: 10px;font-weight: 600;letter-spacing: 1px;">我的评论</span>
 			<div class="hot-comments-box" v-for="(item,index) in myComments.result">
 				<div style="width: 40px;height: 40px;margin: 10px;">
-					<img src="../../../assets/images/109951162913202465.jpg">
+          <Avatar icon="ios-person" :src="myComments.headImg" size="40"/>
 				</div>
 				<div class="hot-comments-box-content" style="position: relative;">
 					<div style="display: flex;justify-content: space-between;margin: 10px 0 0 0 ;">
@@ -25,8 +20,8 @@
 					<div class="hot-comments-border" style="font-size: 16px;letter-spacing: 1px;color: #342525;margin-top: 5px;">{{item.commentsContent}}</div>
 				</div>
 			</div>
+      <div style="width: 100%;height: 5px;background-color: #e8e8e8;"></div>
 		</div>
-		<div style="width: 100%;height: 5px;background-color: #e8e8e8;"></div>
 		<div>
 			<span style="margin-left: 10px;font-weight: 600;font-size: 14px;margin-left: 10px;font-weight: 600;letter-spacing: 1px;">精彩评论</span>
 			<div class="hot-comments-box" v-for="(item,index) in hotComments">
@@ -42,8 +37,8 @@
 					<div class="hot-comments-border" style="font-size: 14px;letter-spacing: 1px;color: #342525;margin: 5px 10px 10px 0;line-height: 18px;">{{item.content}}</div>
 				</div>
 			</div>
+      <div style="width: 100%;height: 5px;background-color: #e8e8e8;"></div>
 		</div>
-		<div style="width: 100%;height: 5px;background-color: #e8e8e8;"></div>
 		<div>
 			<span style="margin-left: 10px;font-weight: 600;font-size: 14px;margin-left: 10px;font-weight: 600;letter-spacing: 1px;">实时评论({{total}})</span>
 			<div class="hot-comments-box" v-for="(item,index) in newComments">
@@ -60,11 +55,11 @@
 				</div>
 			</div>
 		</div>
+    </Scroll>
 		<div style="width:100%;position: fixed;bottom:0px;background-color: #f2f3f4;opacity: 1;height: 40px;display:flex;align-items:center;border-top:1px solid rgb(223, 205, 205);padding:0 10px;justify-content:space-between;">
 			<textarea style="height:20px;width:65%;line-height: 20px;resize:none;border-radius:5px;background-color: #f2f3f4;border: none;font-size:12px;" placeholder="这一次也许就是你上热评了" v-model="commentValue" maxlength="200"></textarea>
 			<span style="color:#ccc;font-size:14px;" @click="addMyComments()">发送</span>
 		</div>
-    </Scroll>
 	</div>
 </template>
 
@@ -124,7 +119,7 @@ export default{
 		}
 	},
 	mounted:function(){
-    this.clientHeight = document.documentElement.clientHeight;
+    this.clientHeight = document.documentElement.clientHeight - 84;
 		//每次刷新或进入页面，将最新评论的条数统一为20条
 		this.offset = 0;
 		this.getComments();
@@ -141,6 +136,9 @@ export default{
 			getMyComments({_id,songId}).then( res => {
 				console.log(res)
 				this.myComments = res.data;
+				if(res.data.headImg != undefined || res.data.headImg != '' || res.data.headImg != null){
+				  this.myComments.headImg = 'http://192.168.102.41:3000' + res.data.headImg;
+        }
 			})
 		},
 		//添加个人评论
@@ -172,9 +170,6 @@ export default{
 				console.log(res)
 				this.getMyComments();
 			})
-		},
-		abc(){
-			console.log('asdfadsfdsf')
 		},
 		//获取精彩评论和最新评论
 		getComments(){

@@ -15,9 +15,9 @@
 	        <Row style="height: 100%;">
 	        	<Col span="24" style="height: 150px;display:flex;justify-content: center;align-items: center;flex-direction:column;border-bottom: 1px solid #e8e8e8;background-color: #f7f3f3;">
 	        		<div style="width:70px; height: 70px;">
-	        			<img src="../../../assets/images/109951162913202465.jpg" style="width:100%;height:100%;border-radius: 50%;overflow: hidden;" />
+                <Avatar icon="ios-person" :src="userInfo.headImg" size="70"/>
 	        		</div>
-	        		<span style="margin-top: 10px;font-size:16px;">许贵斌</span>
+	        		<span style="margin-top: 10px;font-size:16px;">{{userInfo.nickName}}</span>
 	        	</Col>
 	        	<Col span="24" style="height: 100px;display: flex;justify-content: center;align-items: center;border-bottom: 1px solid #e8e8e8;">
 	        		<div class="user-info-nav" @click="goCollectPage()">
@@ -72,7 +72,7 @@
 
 <script>
 import VueQr from 'vue-qr';
-import {changePassword} from '../../../api/user.js'
+import {changePassword , getUserInfo} from '../../../api/user.js'
 import {passwordCheckout,passwordLengthFormatCheckout} from '../../../common/common.js'
 export default{
 	name: 'search',
@@ -88,10 +88,28 @@ export default{
 			changePasswordModalValue:false,
 			originalPassword: '',
 			newPassword: '',
-			confirmNewPassword: ''
+			confirmNewPassword: '',
+      userInfo: {}
 		}
 	},
+  mounted(){
+	  this.getUserInfo();
+  },
 	methods:{
+	  //获取个人信息
+    getUserInfo(){
+      let _id = JSON.parse(window.sessionStorage.getItem('token'))._id;
+      getUserInfo(_id).then( res => {
+        this.userInfo = res.data;
+        if(res.data.headImg != '' && res.data.headImg != null && res.data.headImg != undefined){
+          //this.userInfo.headImg = 'http://192.168.102.41:3000' + res.data.headImg;
+          this.userInfo.headImg = 'http://192.168.102.41:3000' + res.data.headImg;
+        }
+      }).catch( err => {
+          console.log(err)
+      })
+    },
+
 		openUser(){
 			this.drawerValue = true;
 		},

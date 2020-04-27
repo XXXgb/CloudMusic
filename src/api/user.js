@@ -86,3 +86,9 @@ export function changeSelfInfo(data){
   const url = host2 + '/user/changeSelfInfo'
   return axios.post(url,qs.stringify(data))
 }
+
+//上传头像后，保存头像服务器地址的URL到数据库
+export function postSaveHeadImgUrl(data){
+  const url = host2 + '/user/saveHeadImgUrl'
+  return axios.post(url,qs.stringify(data))
+}

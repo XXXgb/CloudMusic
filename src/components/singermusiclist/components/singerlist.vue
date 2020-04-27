@@ -1,5 +1,5 @@
 <template>
-	<div class="list-box3">
+	<div class="list-box3" :style="{marginBottom: $store.state.flag ? '45px' : '0px'}">
 		<div class="list-father">
 			<div class="list-loading" v-if="!loadingFlag"> 
 				<img src="../../../assets/images/loading.gif"/>
@@ -213,7 +213,7 @@ export default{
 	margin-right: 5px;
 }
 .list-songname ul li p:nth-child(1){
-	width:15%;
+	width:50px;
 	text-align: center;
 }
 .list-songname ul li div:nth-child(2){

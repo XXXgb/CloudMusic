@@ -1,5 +1,6 @@
 <template>
 	<div>
+    <div style="position: fixed;top: 100px;z-index:9999;">{{scrollHeight}}</div>
 		<topnav></topnav>
 		<listbackground></listbackground>
 		<listbody></listbody>
@@ -15,6 +16,7 @@ export default{
 	name: 'songlist',
 	data(){
 		return {
+		  scrollHeight: 0
 		}
 	},
 	components:{
@@ -26,9 +28,18 @@ export default{
 		//当页面滚动时，top-nav组件的透明度从0逐渐增加到1
 		changeOpcity(){
 			//获取滚动条距离顶部的距离
-			let scrollTop = document.documentElement.scrollTop;
+      //微信浏览器无法监听到document.documentElement.scrollTop获取到的文档高度
+      //以下写法兼容了所有浏览器文档高度的监听
+			let scrollTop = document.documentElement.scrollTop || window.pageYOffset || document.body.scrollTop;
+      let opcityValue;
 			//当滚动条向下滚动时，计算透明度变化值，到滚动到距离顶部200的位置，透明度到达1，此时透明度不会再变化
-			let opcityValue = scrollTop/200;
+      if(scrollTop <= 200){
+        opcityValue = scrollTop/200;
+        this.scrollHeight = opcityValue;
+      }else if(scrollTop >= 200){
+        opcityValue = 1;
+        this.scrollHeight = opcityValue;
+      }
 			let flag = true;
 			try{
 				if(opcityValue>=0&&opcityValue<=1){
@@ -43,8 +54,9 @@ export default{
 				}
 			}
 			catch(err){
-				
+
 			}
+			console.log(opcityValue)
 			
 			
 			// background: rgba(212, 68, 57, 0) none repeat scroll 0% 0%

@@ -1,5 +1,5 @@
 <template>
-	<div class="list-box3">
+	<div class="list-box3" :style="{marginBottom: $store.state.flag ? '45px' : '0px'}">
 		<div class="list-father">
 			<div class="list-loading" v-if="!loadingFlag"> 
 				<img src="../../../assets/images/loading.gif"/>
@@ -52,6 +52,8 @@ export default{
 			aa: this.$store.state.flag
 		}
 	},
+  mounted(){
+  },
 	methods:{
 		// 3.list.vue接收recommendsonglist.vue发送过来的数据
 		//获取音乐地址的方法
@@ -63,6 +65,7 @@ export default{
 				this.playurl = res.data.data[0].url;
 				this.playmusic(this.playurl,index,idx);
 			})
+
 		},
 		//播放音乐的方法
 	    playmusic(url,index,idx){
@@ -167,7 +170,7 @@ export default{
 
 <style>
 .list-box3{
-	margin: 0;
+
 }
 .list-box3 .list-father{
 	position: relative;
@@ -214,7 +217,7 @@ export default{
 	margin-right: 5px;
 }
 .list-songname ul li p:nth-child(1){
-	width:45px;
+	width:50px;
 	height:100%;
 	text-align: center;
 	line-height: 60px;

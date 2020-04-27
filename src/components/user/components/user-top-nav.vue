@@ -114,10 +114,10 @@ export default{
 	flex: 1;
 }
 .user-top-nav div:nth-child(2) span:nth-child(1){
-	margin-left: 12%;
+	margin-left: 10px;
 }
 .user-top-nav div:nth-child(2) span:nth-child(2){
-	margin-right: 12%;
+	margin-right: 10px;
 }
 .user-playall-box{
 	width:100%;
@@ -155,11 +155,12 @@ export default{
 	align-content: center;
 }
 .user-songlist ul li p:nth-child(1){
-	width:15%;
+	width:50px;
 	text-align: center;
+  line-height: 60px;
 }
 .user-songlist ul li div:nth-child(2){
-	width:85%;
+  width:80%;
 	height:50px;
 	display: flex;
 	flex-flow: column wrap;

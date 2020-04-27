@@ -1,6 +1,5 @@
 <template>
 	<div class="search-box">
-
 		<div class="searchinput-box">
 			<div class="imgstyle fanhui" @click="back">
 				<img src="../../../assets/images/fanhui.png">
@@ -33,7 +32,6 @@
 					<span>歌单：{{songlistName}}</span>
 				</div>
 			</div>
-
 			<ul>
           <li v-for="(item, index) in songlist" @click="getmusic(item.id,index)">
             <div>
@@ -287,7 +285,12 @@ export default{
 	mounted:function(){
 		this.jiaodian();
 		this.gethotsearch();
-    this.clientHeight = document.documentElement.clientHeight;
+    if(this.$store.state.flag){
+      this.clientHeight = document.documentElement.clientHeight - 115;
+    }else{
+      this.clientHeight = document.documentElement.clientHeight - 50;
+    }
+
 	},
 	watch: {
 		//监听搜索关键字的改变，每改变一次都进行一次搜索请求

@@ -9,7 +9,11 @@
       </div>
     </div>
     <div style="width: 100%;position: relative;display: flex;justify-content: center;align-items: center;padding-top: 50px;margin-top: 20px;">
-      <Avatar icon="ios-person" src="../../../static/109951162913202465.jpg" size="100" style="position: absolute;z-index:1;top: 0px;"/>
+      <div style="display: inline-block;position: absolute;z-index:1;top: 0px;">
+        <input type="file" @change="uploadImg($event)" style="z-index: 2;opacity:0;width:100%;height:100%;position:absolute;top:0;left:0">
+        </input>
+        <Avatar icon="ios-person" :src="userInfo.headImg" size="100"/>
+      </div>
       <Card style="width:280px;" shadow>
         <div style="text-align:center;margin: 40px 0 20px 0;">
           <h3>{{userInfo.nickName | userInfoFormat}}</h3>
@@ -65,8 +69,9 @@
 </template>
 
 <script>
-  import { getUserInfo , changeSelfInfo} from '../../api/user.js'
+  import { getUserInfo , changeSelfInfo , postSaveHeadImgUrl} from '../../api/user.js'
   import util from '../../util/util.js'
+  import axios from 'axios'
 export default{
 	name: 'user',
 	data(){
@@ -108,12 +113,54 @@ export default{
   },
 
   mounted(){
+	  //隐藏播放栏
+    let flag = false;
+    this.$store.commit('sq',flag);
 	  this.getUserInfo();
   },
 
 	methods:{
+    uploadImg(e){
+      console.log(e.target.files[0].type)
+      //if(!e.target.files.length) return
+      //判断图片格式，限制只能上传jpg和png格式的图片
+      if(e.target.files[0].type == 'image/jpeg' || e.target.files[0].type == 'image/png'){
+        let formData = new FormData()
+        formData.append('headImg',e.target.files[0]);
+        let URL = 'http://192.168.102.41:3000/file/upload';
+        //let URL = 'http://localhost:3000/file/upload';
+        axios.post(URL,formData,{headers: {'Content-Type': 'multipart/form-data'}})
+          .then( res =>{
+            console.log(res)
+            if(res.data.err == 0){
+              return postSaveHeadImgUrl({
+                _id: JSON.parse(window.sessionStorage.getItem('token'))._id,
+                headImg: res.data.headImg
+              })
+            }
+        })
+        .then( res => {
+          if( res.data.err == 0){
+            this.getUserInfo();
+            this.$Message.success('头像修改成功');
+          }else{
+            this.$Message.warning('头像修改失败');
+          }
+        })
+        .catch( err => {
+          console.log(err)
+        })
+      }else{
+        this.$Message.warning('不支持该图片格式');
+      }
+    },
+
+
     back(){
       history.go(-1);
+      //显示播放栏
+      let flag = true;
+      this.$store.commit('sq',flag);
     },
 
 
@@ -140,7 +187,11 @@ export default{
       let _id = JSON.parse(window.sessionStorage.getItem('token'))._id;
       getUserInfo(_id).then( res => {
         this.userInfo = res.data;
-        console.log(res)
+        if(res.data.headImg != '' && res.data.headImg != null && res.data.headImg != undefined){
+          //this.userInfo.headImg = 'http://192.168.102.41:3000' + res.data.headImg;
+          this.userInfo.headImg = 'http://192.168.102.41:3000' + res.data.headImg;
+        }
+        console.log(this.userInfo)
       }).catch( err => {
 
       })
@@ -173,7 +224,7 @@ export default{
 }
 </script>
 
-<style>
+<style scoped>
   .comments-top-nav{
     width: 100%;
     height: 44px;
@@ -200,6 +251,5 @@ export default{
     background-image: url('../../assets/images/sky-2540302_1920.jpg');
     background-size: cover;
   }
-  .ivu-form-item{
-  }
+
 </style>

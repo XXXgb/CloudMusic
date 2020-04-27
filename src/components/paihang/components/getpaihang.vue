@@ -7,8 +7,8 @@
 			<div class="bangdan-songlist">
 				<ul>
 					<li>1.  {{item.playlist.tracks[0].al.name}} - {{item.playlist.tracks[0].ar[0].name}}</li>
-					<li>1.  {{item.playlist.tracks[1].al.name}} - {{item.playlist.tracks[1].ar[0].name}}</li>
-					<li>1.  {{item.playlist.tracks[2].al.name}} - {{item.playlist.tracks[2].ar[0].name}}</li>
+					<li>2.  {{item.playlist.tracks[1].al.name}} - {{item.playlist.tracks[1].ar[0].name}}</li>
+					<li>3.  {{item.playlist.tracks[2].al.name}} - {{item.playlist.tracks[2].ar[0].name}}</li>
 				</ul>
 			</div>
 		</div>
@@ -102,19 +102,16 @@ export default{
 
 <style>
 .paihang-box{
-	float: left;
 	width: 100%;
 }
 .bangdan{
-	width:96%;
-	height: 100px;
-	padding: 5px 2%;
+	padding: 5px;
 	border-bottom: 1px solid #e4e4e4;
+  display: flex;
 }
 .bangdan-img{
-	float: left;
-	width:100px;
-	height: 100px;
+	width:80px;
+	height: 80px;
 }
 .bangdan-img img{
 	width: 100%;
@@ -122,17 +119,16 @@ export default{
 	border-radius: 3px;
 }
 .bangdan-songlist{
-	width:70%;
-	float: left;
+	max-width:70%;
 }
 .bangdan-songlist ul{
-	padding: 0 0 0 25px;
+	padding: 0 0 0 10px;
 	font-size: 12px;
 	color: #2e3030;
 }
 .bangdan-songlist ul li{
 	list-style: none;
-	margin-top: 12px;
+	margin: 6px 0;
 	text-overflow: ellipsis;
 	overflow: hidden;
 	white-space:nowrap;
