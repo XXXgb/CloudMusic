@@ -74,6 +74,7 @@
 import VueQr from 'vue-qr';
 import {changePassword , getUserInfo} from '../../../api/user.js'
 import {passwordCheckout,passwordLengthFormatCheckout} from '../../../common/common.js'
+import {host2} from '../../../api/host.js'
 export default{
 	name: 'search',
 	components: { VueQr },
@@ -82,7 +83,7 @@ export default{
 			drawerValue: false,
 			shareWebModalValue:false,
 			config:{
-				webUrl: 'http://192.168.102.41:8080'
+				webUrl: 'http://192.168.137.1:3000'
 			},
 			changePasswordModalValue:false,
 			originalPassword: '',
@@ -101,11 +102,9 @@ export default{
       getUserInfo(_id).then( res => {
         this.userInfo = res.data;
         if(res.data.headImg != '' && res.data.headImg != null && res.data.headImg != undefined){
-          //this.userInfo.headImg = 'http://192.168.102.41:3000' + res.data.headImg;
-          this.userInfo.headImg = 'http://192.168.102.41:3000' + res.data.headImg;
+          this.userInfo.headImg = host2 + res.data.headImg;
         }
       }).catch( err => {
-          console.log(err)
       })
     },
 
@@ -151,7 +150,7 @@ export default{
 			})
 			.then( res => {
 				if(res.data.err === 0){
-					that.$Message.success(res.data.msg);
+					this.$Message.info(res.data.msg);
 				}else{
 					that.$Message.error(res.data.msg);
 				}
@@ -166,6 +165,13 @@ export default{
 		},
 		//退出登陆
 		logOut(){
+      //移除正在播放的音乐
+      let audio = document.getElementById('audio');
+      audio.pause();
+      audio.currertTime = 0;
+      //隐藏播放栏
+      let flag = false;
+      this.$store.commit('sq',flag);
 			//删除sessionStorage中的token
 			window.sessionStorage.removeItem('token');
 			this.$router.push({

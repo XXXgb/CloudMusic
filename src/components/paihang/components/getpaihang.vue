@@ -26,12 +26,13 @@ export default{
 			priority: []
 		}
 	},
+
+  created:function(){
+    this.getoriginallist();
+  },
+
 	methods:{
-		//定义一个获取榜单的公共类
-		
-		//继承Father类中的获取榜单的方法，以此获取网易原创歌曲榜单
-		// var ldh = new Father(6);
-		// ldh.getAll();
+
 		//获取原创榜单
 		getoriginallist(){
 			singerlistpaihang(2).then(res => {
@@ -41,8 +42,9 @@ export default{
 					this.getituneslist();
 				}
 			})
-			
 		},
+
+
 		//获取iTunes榜
 		getituneslist(){
 			singerlistpaihang(8).then(res => {
@@ -52,6 +54,8 @@ export default{
 				}
 			})
 		},
+
+
 		//获取内地TOP排行榜
 		getchinalist(){
 			singerlistpaihang(15).then(res => {
@@ -61,6 +65,8 @@ export default{
 				}
 			})
 		},
+
+
 		//获取话语金曲榜
 		gethklist(){
 			singerlistpaihang(17).then(res => {
@@ -70,6 +76,8 @@ export default{
 				}
 			})
 		},
+
+
 		//获取uk排行周榜
 		gethiphoplist(){
 			singerlistpaihang(18).then(res => {
@@ -78,6 +86,8 @@ export default{
 				}
 			})
 		},
+
+
 		//当点击排行榜时，先把排行榜的名字和背景保存到store中，以便优先list.vue头部优先渲染
 		//再跳转到list中，由list.vue实现歌单列表的获取
 		getsonglistdetail(index){
@@ -87,16 +97,14 @@ export default{
 			let picUrl = this.list[index].playlist.coverImgUrl;
 			this.priority = {'name': name , 'id': id , 'picUrl': picUrl};
 			this.$store.commit('priority',this.priority);
-			console.log(this.$store.state.priorityRender)
 			this.$router.push({
 					path: '/songlist'
 			})
 		},
-		
+
+
 	},
-	created:function(){
-		this.getoriginallist();
-	},
+
 }
 </script>
 

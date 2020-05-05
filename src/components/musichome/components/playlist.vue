@@ -24,6 +24,7 @@ import BScroll from 'better-scroll'
 import {musicplayurl} from '../../../api/playmusicdetail.js'
 import {musicdetail} from '../../../api/playmusicdetail.js'
 import {latelyplay,panduan} from '../../../common/common.js'
+import {addSelfLatelyPlay} from '../../../api/user.js'
 export default{
 	name: 'playlist',
 	data(){
@@ -44,7 +45,12 @@ export default{
 	methods:{
 		//初始化better-scroll
 		initBscroll(){
-			let activeindex = document.querySelector('.active').id;
+		  let activeindex;
+      if(document.querySelector('.active') == null){
+        activeindex = 0;
+      }else{
+        activeindex = document.querySelector('.active').id;
+      }
 			let that = this;
 			//计算初始化playlist时，距离顶部的距离，实现当前播放音乐处于第顶部的效果
 			let height = -(activeindex * 40);
@@ -57,8 +63,9 @@ export default{
 				})
 				playlistScroll.scrollTo(0,height)
 			})
-			console.log('初始化了')
 		},
+
+
 		//显示隐藏playlist组件
 		toggleplaylist(){
 			this.toggleFlag = !this.toggleFlag;
@@ -66,32 +73,32 @@ export default{
 			if(this.toggleFlag){
 				//禁用
 				document.body.parentNode.style.overflow = "hidden";
-				console.log(this.coverHeight)
 			}else{
 				//启用
 				document.body.parentNode.style.overflow = "auto";
 			}
-			
 		},
+
+
 		//读取localstorage中的playalllist列表
 		getplayalllist(){
 			this.playalllist = JSON.parse(window.localStorage.getItem('playalllist'));
 			this.playalllistLength = this.playalllist.length;
-			console.log(this.playalllist)
 		},
+
+
 		//获取音乐地址的方法
 		getmusic(idx,index){
-			console.log(idx)
 			this.playurl = '';
 			//使用vue-resource调用音乐播放地址的API，获取我们想要的播放地址
 			musicplayurl(idx).then(res => {
-				console.log(res)
-				// console.log(res.data.data[0].url)
 				//获取可以播放的url地址
 				this.playurl = res.data.data[0].url;
 				this.playmusic(this.playurl,index,idx);
 			})
 		},
+
+
 		//播放音乐的方法
 	    playmusic(url,index,idx){
 	      let that = this;
@@ -111,37 +118,37 @@ export default{
 		      	singername = this.playalllist[index].ar[0].name;
 		      }
 		      this.getdetail(idx);
-		      //当进入播放页后，把播放的音乐添加进最近播放列表中
-		      // 如果一开始就已经有最近播放的列表，则把原有的列表读取出来，再追加新播放的音乐
-		      // 否则，新建一个recentplaylist本地存储，再将播放的音乐添加进最近播放列表中
-		      latelyplay(this.playalllist[index].name,
-		      				singername,
-		      					this.playalllist[index].id)
+		      //添加到最近播放列表
+          let _id = JSON.parse(window.sessionStorage.getItem('token'))._id;
+          let songId = this.playalllist[index].id;
+          let songName = this.playalllist[index].name;
+          let addTime = new Date().getTime();
+          addSelfLatelyPlay({_id,songId,songName,singerName:singername,addTime})
+          .then( res => {
+          })
 		      //获取当前正在播放音乐的索引
 		      let p = panduan(idx);
-		      console.log(p)
-		      //this.$store.state.playlistindex==index，让正在播放的音乐高亮
 		      this.$store.commit('setplaylistindex',idx);
-		      
 	      }
 
 	      
 		},
 		//获取所播放音乐的详情(背景图片和歌名)的方法
 		getdetail(id){
-			//let url = 'http://120.79.162.149:3000/song/detail?ids=' + id
 			musicdetail(id).then(res=>{
 				//此时detail中存放的有背景图和歌名
 				this.detail = res.data.songs[0];
 				//获取到音乐详情后，保存到store的musicdetail中
-				console.log(res.data.songs[0])
 				this.abc(this.detail);
-
 			})
 		},
+
+    //在vuex中存放背景图和歌名
 		abc(detail){
 			this.$store.commit('bcd',detail)
 		},
+
+    //删除预播放列表的歌曲
 		remove(id,event){
 			let timer = null;
 			let that = this;
@@ -160,24 +167,21 @@ export default{
 					if(list[i].id === id){
 						list.splice(i,1);
 						window.localStorage.setItem('playalllist',JSON.stringify(list));
-						console.log('删除了'+i)
 						that.getplayalllist();
 						break;
 					}
 				}
 			}
-			
-			
 		},
+
+
 		//音乐播放结束进入下一首的方法
 		goNextMusic(){
 			let p = panduan(this.$store.state.musicdetail.id);
 			let index = p.selIndex;
-			console.log(p)
 			//模拟点击切换下一首操作
 			let playalllist = JSON.parse(window.localStorage.getItem('playalllist'));
 			this.getmusic(playalllist[index+1].id,index+1)
-			console.log(playalllist[index+1]);
 			this.$store.commit('setendflag',true)
 		}
 
@@ -197,16 +201,18 @@ export default{
 					},100)
 				}
 			}
-			
 		},
+
+
 		toggleFlag(newVal,oldVal){
-		  console.log(newVal)
 			if(newVal){
         this.coverHeight = document.documentElement.scrollHeight + 'px';
 				this.initBscroll();
 			}
 		}
 	},
+
+
 	computed:{
 		//监听computedEndFlag的值是否为false，如果为false，则触发watch中的监听，执行播放下一首音乐的操作
 		computedEndFlag(){

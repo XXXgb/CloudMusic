@@ -52,10 +52,17 @@ export default{
 			aa: this.$store.state.flag
 		}
 	},
-  mounted(){
+
+  created:function(){
   },
+
+  mounted:function(){
+    this.getsonglistdetail();
+  },
+
 	methods:{
-		// 3.list.vue接收recommendsonglist.vue发送过来的数据
+
+
 		//获取音乐地址的方法
 		getmusic(idx,index){
 			this.playurl = '';
@@ -65,43 +72,37 @@ export default{
 				this.playurl = res.data.data[0].url;
 				this.playmusic(this.playurl,index,idx);
 			})
-
 		},
+
+
 		//播放音乐的方法
 	    playmusic(url,index,idx){
 	      if(url==null){
 	      	this.$Message.warning('该音乐暂无版权，无法播放！')
 	      }else{
-	      this.flag = true;
-	      document.querySelector('audio').src = url;
-	      this.getdetail(idx);
-	      //当进入播放页后，把播放的音乐添加进最近播放列表中
-	      // 如果一开始就已经有最近播放的列表，则把原有的列表读取出来，再追加新播放的音乐
-	      // 否则，新建一个recentplaylist本地存储，再将播放的音乐添加进最近播放列表中
-	      //latelyplay(this.songlistdetail.result.tracks[index].name,
-	      //				this.songlistdetail.result.tracks[index].artists[0].name,
-	      //				this.songlistdetail.result.tracks[index].id)
-	      let _id = JSON.parse(window.sessionStorage.getItem('token'))._id;
-	      let songId = this.songlistdetail.result.tracks[index].id;
-	      let songName = this.songlistdetail.result.tracks[index].name;
-	      let singerName = this.songlistdetail.result.tracks[index].artists[0].name;
-	      let addTime = new Date().getTime();
-	      addSelfLatelyPlay({_id,songId,songName,singerName,addTime})
-	      .then( res => {
-	      	console.log(res)
-	      })
-
-	      //实现点击播放音乐后，playlist中改变当前播放音乐的颜色
-		  this.changecolor(idx,index)
-	      this.$router.push({
-	        path: '/play'
-	      })
+          this.flag = true;
+          document.querySelector('audio').src = url;
+          this.getdetail(idx);
+          //添加到最近播放列表
+          let _id = JSON.parse(window.sessionStorage.getItem('token'))._id;
+          let songId = this.songlistdetail.result.tracks[index].id;
+          let songName = this.songlistdetail.result.tracks[index].name;
+          let singerName = this.songlistdetail.result.tracks[index].artists[0].name;
+          let addTime = new Date().getTime();
+          addSelfLatelyPlay({_id,songId,songName,singerName,addTime})
+          .then( res => {
+          })
+          //实现点击播放音乐后，playlist中改变当前播放音乐的颜色
+          this.changecolor(idx,index)
+          this.$router.push({
+            path: '/play'
+          })
 	      }
-	      
 		},
+
+
 		//获取所播放音乐的详情(背景图片和歌名)的方法
 		getdetail(id){
-			//let url = 'http://120.79.162.149:3000/song/detail?ids=' + id
 			musicdetail(id).then(res=>{
 				//此时detail中存放的有背景图和歌名
 				this.detail = res.data.songs[0];
@@ -109,32 +110,34 @@ export default{
 				this.abc(this.detail);
 			})
 		},
+
+
 		abc(detail){
 			this.$store.commit('bcd',detail)
 		},
+
+
 		//获取歌单详情列表方法
 		//把歌单名和背景图保存到store中，方便进入list.vue页面时优先渲染
 		getsonglistdetail(){
 			this.$store.commit('getsonglistid',this.$store.state.priorityRender.id)
 			// 1.获取歌单
-			// let url = 'http://120.79.162.149:3000/playlist/detail?id=' + this.$store.state.songlistid;
-			console.log(this.$store.state.songlistid)
 			songlistdetail(this.$store.state.songlistid).then(res => {
-				// console.log(res)
 				this.songlistdetail = [];
 				this.songlistdetail = res.data;
 				this.loadingFlag = !this.loadingFlag;
-				console.log(this.songlistdetail)
 			})
 		},
+
+
 		// 播放全部功能
 		// 当点击时播放全部按钮时，将所有音乐缓存到localstorage中
 		clickplayall(){
 			//封装了一个保存播放全部列表的方法，传入两个参数，分别为音乐的的总数和音乐列表
 			playall(this.songlistdetail.result.tracks.length,this.songlistdetail.result.tracks);
-			
-
 		},
+
+
 		//实现点击播放音乐后，playlist中改变当前播放音乐的颜色
 		changecolor(id,index){
 			let that = this;
@@ -143,28 +146,19 @@ export default{
 				that.clickplayall();
 				return resolve()
 			})
-			
 			//2.获取当前播放的音乐是第几首
-			console.log(id)
 			//3.改变playlist第几首的颜色
 			promise.then(function(){
-				console.log('chenggongle'+id);
 				that.$store.commit('setplaylistindex',id)
 			})
-			
 		}
+	},
 
-	},
-	created:function(){
-	},
-	mounted:function(){
-    	this.getsonglistdetail();
-  	},
-  	watch:{
-  		"this.$store.state.flag"(){
-  			this.aa = this.$store.state.flag;
-  		}
-  	}
+  watch:{
+    "this.$store.state.flag"(){
+      this.aa = this.$store.state.flag;
+    }
+  }
 }
 </script>
 

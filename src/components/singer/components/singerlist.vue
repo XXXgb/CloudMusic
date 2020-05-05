@@ -17,14 +17,12 @@ export default{
 			let that = this;
 			let promise = new Promise(function(resolve,reject){
 				singerlistpaihang(2).then(res => {
-					console.log(res)
 
 				})
 				return resolve('1');
 			})
 			let pp = await promise;
 			if(pp == 1){
-				console.log('成功后触发的')
 			}
 		}
 	},

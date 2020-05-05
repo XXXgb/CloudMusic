@@ -4,10 +4,8 @@
 			<div class="user-fanhui" @click="back">
 				<img src="../../../assets/images/fanhui.png">
 			</div>
-			<div>
-				<span v-if="this.$route.query.name == 'myCollect'">我的收藏</span>
-				<span v-if="this.$route.query.name == 'latelyPlay'">最近播放</span>
-			</div>
+      <span v-if="this.$route.query.name == 'myCollect'">我的收藏</span>
+      <span v-if="this.$route.query.name == 'latelyPlay'">最近播放</span>
 		</div>
 		<div class="user-playall-box">
 			<div class="user-playall"><img src="../../../assets/images/playall.png"></div>
@@ -37,21 +35,33 @@ export default{
     		myCollectLength: 0
     	}
     },
+
+    mounted:function(){
+      if(this.$route.query.name == 'myCollect'){
+        this.findMyCollect();
+      }else if(this.$route.query.name == 'latelyPlay'){
+        this.getLatelyPlay();
+      }
+    },
+
     methods:{
+
     	back(){
     		history.go(-1);
     	},
+
+      //查询我的收藏
     	findMyCollect(){
     		let param = JSON.parse(window.sessionStorage.getItem('token'))._id;
     		findCollect(param).then(res => {
-    			console.log(res)
     			this.myCollectLength = res.data.length;
     			this.songlist = res.data;
     		}).catch( err => {
-    			console.log(err)
     		})
     	},
-    	//获取最近播放音乐
+
+
+    	//查询最近播放音乐
     	getLatelyPlay(){
     		let param = JSON.parse(window.sessionStorage.getItem('token'))._id;
     		getLatelyPlay(param).then(res => {
@@ -59,20 +69,14 @@ export default{
     			this.songlist = res.data;
     		})
     	},
+
+
     	//获取音乐url
     	getmusic(idx){
-    		console.log(idx)
     	}
+
     },
-    mounted:function(){
-    	if(this.$route.query.name == 'myCollect'){
-    		this.findMyCollect();
-    	}else if(this.$route.query.name == 'latelyPlay'){
-    		this.getLatelyPlay();
-    	}
-    	
-    	
-    }
+
 }
 </script>
 
@@ -85,8 +89,7 @@ export default{
 	width: 100%;
 	height: 44px;
 	display: flex;
-	flex-flow: column wrap;
-	justify-content: center;
+	align-items: center;
 	z-index: 9999;
 	background-color:#d44439;
 
@@ -113,11 +116,13 @@ export default{
 .user-top-nav div:nth-child(2) span{
 	flex: 1;
 }
-.user-top-nav div:nth-child(2) span:nth-child(1){
+.user-top-nav  span:nth-child(1){
 	margin-left: 10px;
+  color: #fff;
 }
-.user-top-nav div:nth-child(2) span:nth-child(2){
+.user-top-nav  span:nth-child(2){
 	margin-right: 10px;
+  color: #fff;
 }
 .user-playall-box{
 	width:100%;

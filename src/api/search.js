@@ -1,5 +1,5 @@
 import {axiosRequest} from './index.js'
-import {host} from './host.js'
+import {host, searchIpAddress} from './host.js'
 
 export function hotsearch(){
 	const url = host + '/search/hot'
@@ -12,6 +12,6 @@ export function singerurl(keywords){
 }
 
 export function songlisturl(keywords,offset){
-	const url = host + `/search?keywords=${keywords}` + `&offset=${offset}`
+	const url = '/searchApi' + `/search?keywords=${keywords}` + `&offset=${offset}`
 	return axiosRequest(url)
 }

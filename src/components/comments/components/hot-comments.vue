@@ -31,7 +31,7 @@
 				<div class="hot-comments-box-content" style="position: relative;">
 					<div style="display: flex;justify-content: space-between;margin: 10px 0 0 0 ;">
 						<span style="color:  rgb(110, 95, 95);font-size: 14px;">{{item.user.nickname}}</span>
-						<span style="color:  rgb(131, 105, 105);font-size: 14px;margin-right: 10px;">赞数{{item.likedCount}}</span>
+						<span style="color:  rgb(131, 105, 105);font-size: 14px;margin-right: 10px;">{{item.likedCount}}<Icon type="md-thumbs-up" style="margin-left: 5px;"/></span>
 					</div>
 					<div style="font-size: 10px;color: rgb(183, 150, 150);">{{item.time | timeFormat}}</div>
 					<div class="hot-comments-border" style="font-size: 14px;letter-spacing: 1px;color: #342525;margin: 5px 10px 10px 0;line-height: 18px;">{{item.content}}</div>
@@ -48,7 +48,7 @@
 				<div class="hot-comments-box-content" style="position: relative;">
 					<div style="display: flex;justify-content: space-between;margin: 10px 0 0 0 ;">
 						<span style="color:  rgb(110, 95, 95);font-size: 14px;">{{item.user.nickname}}</span>
-						<span style="color:  rgb(131, 105, 105);font-size: 14px;margin-right: 10px;">赞数{{item.likedCount}}</span>
+						<span style="color:  rgb(131, 105, 105);font-size: 14px;margin-right: 10px;">{{item.likedCount}}<Icon type="md-thumbs-up" style="margin-left: 5px;"/></span>
 					</div>
 					<div style="font-size: 10px;color: rgb(183, 150, 150);">{{item.time | timeFormat}}</div>
 					<div class="hot-comments-border" style="font-size: 14px;letter-spacing: 1px;color: #342525;margin: 5px 10px 10px 0;line-height: 18px;">{{item.content}}</div>
@@ -66,6 +66,7 @@
 <script>
 import {commentsDetail} from '../../../api/comments.js'
 import {getMyComments,addMyComments,removeMyComments} from '../../../api/user.js'
+import {host2} from '../../../api/host.js'
 export default{
 	name: 'hotComments',
 	data(){
@@ -96,11 +97,13 @@ export default{
 				if(minute >= 0 && minute <= 9){
 					minute = '0' + minute;
 				}
-				//if(second >= 0 && second <= 9){
-				//	second = '0' + second;
-				//}
 				if(flag == 0){
-					return hour+":"+minute;
+				  let val = time - new Date(new Date().toLocaleDateString()).getTime();
+				  if( val >= 0 ){
+            return '今天' + hour+":"+minute;
+          }else{
+            return '昨天' + hour+":"+minute;
+          }
 				}else if(flag ==1){
 					return year+"年"+month+"月"+date+"日"+" "+hour+":"+minute;
 				}
@@ -108,11 +111,15 @@ export default{
 			//计算时间戳的差值
 			let now = new Date().getTime(); //当前的时间戳
 			let differenceValue = parseInt((now - time) / 1000);  //当前时间戳减去评论时间的时间戳除以1000再取整，得出评论距离今天的时长
-			if(differenceValue < 3600){
+			if(differenceValue < 60){
+        return '刚刚'
+      }else if(differenceValue <= 3600){
 				return parseInt(differenceValue/60) + '分钟前'
-			}else if(differenceValue > 3600 && differenceValue < 86400){
-				return formatDate(0,new Date(time));
+			}else if(differenceValue >= 3600 && differenceValue <= 86400){
+			  //0代表评论时间距离当前时间在一天内
+				return formatDate(0,new Date(Number(time)));
 			}else if(differenceValue > 86400){
+			  //1代表评论时间距离当前时间超过一天
 				return formatDate(1,new Date(time));
 			}
 
@@ -126,21 +133,26 @@ export default{
 		this.getMyComments();
 	},
 	methods:{
+
+
     back(){
       history.go(-1);
     },
+
+
 		//查询个人评论
 		getMyComments(){
 			let _id = JSON.parse(window.sessionStorage.getItem('token'))._id;
 			let songId = JSON.parse(window.sessionStorage.getItem('musicDetail')).songId;
 			getMyComments({_id,songId}).then( res => {
-				console.log(res)
 				this.myComments = res.data;
 				if(res.data.headImg != undefined || res.data.headImg != '' || res.data.headImg != null){
-				  this.myComments.headImg = 'http://192.168.102.41:3000' + res.data.headImg;
+				  this.myComments.headImg = host2 + res.data.headImg;
         }
 			})
 		},
+
+
 		//添加个人评论
 		addMyComments(){
 			let _id = JSON.parse(window.sessionStorage.getItem('token'))._id;
@@ -160,44 +172,43 @@ export default{
 			}else{
 				alert('请输入评论内容！')
 			}
-			
 		},
+
+
 		//删除个人评论
 		removeMyComments(songId,commentsTime){
-			console.log('111')
 			let _id = JSON.parse(window.sessionStorage.getItem('token'))._id;
 			removeMyComments({_id,songId,commentsTime}).then( res => {
-				console.log(res)
 				this.getMyComments();
 			})
 		},
+
+
 		//获取精彩评论和最新评论
 		getComments(){
 			//document.body.parentNode.style.overflow = "hidden";
 			let songId = JSON.parse(window.sessionStorage.getItem('musicDetail')).songId;
 			//获取歌曲评论
 			commentsDetail(songId,this.offset).then( res => {
-				console.log(res)
 				this.total = res.data.total;
 				if(res.data.hotComments){
 					this.hotComments = res.data.hotComments;
 				}
 				this.newComments.push(...res.data.comments);
-			//	document.body.parentNode.style.overflow = "auto";
 				this.loaded = false;
-				console.log('修改了loaded：'+this.loaded)
 			}).catch( err => {
 
 			})
 		},
 
+    //触底加载20条评论
     handleReachBottom () {
       return new Promise(resolve => {
         setTimeout(() => {
           this.offset += 20;  //每次触底加载下一页
           this.getComments();
           resolve();
-        }, 2000);
+        }, 1000);
       });
     },
 
@@ -244,7 +255,6 @@ export default{
 .hot-comments-box-content{
 	width: calc(100% - 60px);
 }
-
 input{
 	outline: none;
 }

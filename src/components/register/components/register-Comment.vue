@@ -47,10 +47,14 @@ export default{
     mounted(){
     },
     methods:{
+
     	//启用注册按钮
     	checkoutFun(val){
     		this.checkoutSuccessFlag = val;
     	},
+
+
+      //注册
     	register(){
     		let user = this.user.trim();
     		let password = {password:this.password.trim()}

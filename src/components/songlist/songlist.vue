@@ -52,10 +52,7 @@ export default{
 			catch(err){
 
 			}
-			console.log(opcityValue)
-			
-			
-			// background: rgba(212, 68, 57, 0) none repeat scroll 0% 0%
+
 		},
 	},
 	mounted:function(){

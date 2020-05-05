@@ -45,46 +45,31 @@ export default{
 		}
 	},
 	methods: {
+
+
 		//获取推荐歌单
 		getrecommendsonglist(){
 			// recommendsonglist().then(res => {
 			// 	//处理数据
-			// 	console.log(res)
 			// 	this.result = res.data.result;
-			// 	console.log(this.result);
 			// })
 			//获取本地推荐歌单
 			getIndexDetail().then(res=>{
 				this.result = res.data;
 			})
 		},
+
+
 		//当点击推荐歌单时，先把排行榜的名字和背景保存到store中，以便优先list.vue头部优先渲染
 		//再跳转到list中，由list.vue实现歌单列表的获取
 		getsonglistdetail(id,index){
 			this.priority = this.result[index];
 			this.$store.commit('priority',this.priority);
-			console.log(this.$store.state.priorityRender)
 			this.$router.push({
 					path: '/songlist'
 			})
 		},
-		
-		// priorityRender(id,index){
-		// 	this.priority = this.result[index];
-		// 	this.$store.commit('priority',this.priority);
-		// 	console.log(this.$store.state.priorityRender)
-		// }
-		// sendsonglistid(){
-			
-		// 	// 2.获取到歌单后通过bus发送到list.vue中
-		// 	this.$nextTick(function () {
-		// 		bus.$emit("sendsonglistdetail",this.songlistdetail);
 
-		// 	})
-
-		// },
-			// 3.list.vue接收recommendsonglist.vue发送过来的数据
-			// 4.list.vue将数据渲染到页面中
 	},
 	created:function(){
 		this.getrecommendsonglist();

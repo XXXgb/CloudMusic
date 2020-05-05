@@ -32,29 +32,29 @@ export default{
     	}
     },
     methods:{
+
+
     	//登陆
     	login(){
     		let user = this.user.trim();
     		let password = this.password.trim();
     		if(user.length != '' && password.length != ''){
     			loginAPI(user,password)
-				.then((data)=>{
-					console.log(data)
-					if(data.data.err==0){
-						this.$Message.success = data.data.msg;
-						//登陆成功后，将token保存到localstorage中，以便后续查询操作验证登陆状态
-						window.sessionStorage.setItem('token',JSON.stringify(data.data));
-						this.$router.push({
-							path: '/musichome'
-						})
-					}else{
-						this.$Message.warning(data.data.msg);
-					}
-				})
+          .then((data)=>{
+            if(data.data.err==0){
+              this.$Message.info(data.data.msg);
+              //登陆成功后，将token保存到localstorage中，以便后续查询操作验证登陆状态
+              window.sessionStorage.setItem('token',JSON.stringify(data.data));
+              this.$router.push({
+                path: '/musichome'
+              })
+            }else{
+              this.$Message.warning(data.data.msg);
+            }
+          })
     		}else{
     			this.$Message.warning('用户名或密码不能为空！');
     		}
-
     	}
     },
 }

@@ -36,6 +36,7 @@ import {singerlistdetail} from '../../../api/songlist.js'
 import {musicplayurl} from '../../../api/playmusicdetail.js'
 import {musicdetail} from '../../../api/playmusicdetail.js'
 import {latelyplay,panduan,playall} from '../../../common/common.js'
+import {addSelfLatelyPlay} from '../../../api/user.js'
 export default{
 	name: 'singerlist',
 	data(){
@@ -51,66 +52,53 @@ export default{
 			loadingFlag: false
 		}
 	},
+
+  mounted:function(){
+    this.getsingerdetail();
+  },
+
 	methods:{
-		// 3.list.vue接收recommendsonglist.vue发送过来的数据
 		
 		//获取音乐地址的方法
 		getmusic(idx,index){
-			//获取到的歌曲url不是我们想要的格式，我们只想获取里面的id
-			//console.log(idx)
-			//let url;
-			//url = 'http://120.79.162.149:3000/music/url?id=' + idx;
-			// console.log(url);
 			this.playurl = '';
 			//使用vue-resource调用音乐播放地址的API，获取我们想要的播放地址
 			musicplayurl(idx).then(res => {
-				//console.log(res)
-				// console.log(res.data.data[0].url)
 				//获取可以播放的url地址
 				this.playurl = res.data.data[0].url;
-				
 				this.playmusic(this.playurl,index,idx);
-				// this.playmusic(this.playurl);
-				// this.sendsongid();
-				// this.getdetail(id);
 			})
 		},
 		//播放音乐的方法
 	    playmusic(url,index,idx){
-	      
 	      if(url==null){
 	      	this.$Message.warning('该音乐暂无版权，无法播放！')
 	      }else{
-	      this.flag = true;
-	      document.querySelector('audio').src = url;
-	      	//当进入播放页后，把播放的音乐添加进最近播放列表中
-	      let recentplaylist = JSON.parse(window.localStorage.getItem('recentplaylist'));
-	      let songname = this.songlistdetail[index].name;
-	      let singername= this.songlistdetail[index].ar[0].name;
-	      let id = this.songlistdetail[index].id;
-	      let arr = [{'songname': songname , 'singername': singername , 'id': id}];
-	      let arr1 = {'songname': songname , 'singername': singername , 'id': id}
-	      this.getdetail(idx);
-	      
-
-	      // 如果一开始就已经有最近播放的列表，则把原有的列表读取出来，再追加新播放的音乐
-	      // 否则，新建一个recentplaylist本地存储，再将播放的音乐添加进最近播放列表中
-	      latelyplay(this.songlistdetail[index].name,
-	      				this.songlistdetail[index].ar[0].name,
-	      					this.songlistdetail[index].id)
-
-
-	      //实现点击播放音乐后，playlist中改变当前播放音乐的颜色
-		  this.changecolor(idx,index)
-
-	      this.$router.push({
-	        path: '/play'
-	      })
+          this.flag = true;
+          document.querySelector('audio').src = url;
+            //当进入播放页后，把播放的音乐添加进最近播放列表中
+          //let recentplaylist = JSON.parse(window.localStorage.getItem('recentplaylist'));
+          let songname = this.songlistdetail[index].name;
+          let singername= this.songlistdetail[index].ar[0].name;
+          let id = this.songlistdetail[index].id;
+          this.getdetail(idx);
+          //添加到最近播放列表
+          let _id = JSON.parse(window.sessionStorage.getItem('token'))._id;
+          let addTime = new Date().getTime();
+          addSelfLatelyPlay({_id,songId:id,songName:songname,singerName:singername,addTime})
+          .then( res => {
+          })
+          //实现点击播放音乐后，playlist中改变当前播放音乐的颜色
+          this.changecolor(idx,index)
+          this.$router.push({
+            path: '/play'
+          })
 	  	  }
 		},
+
+
 		//获取所播放音乐的详情(背景图片和歌名)的方法
 		getdetail(id){
-			//let url = 'http://120.79.162.149:3000/song/detail?ids=' + id
 			musicdetail(id).then(res=>{
 				//此时detail中存放的有背景图和歌名
 				this.detail = res.data.songs[0];
@@ -118,28 +106,33 @@ export default{
 				this.abc(this.detail);
 			})
 		},
+
+
 		abc(detail){
 			this.$store.commit('bcd',detail)
 		},
+
+
 		//获取歌单详情列表方法
 		//把歌单名和背景图保存到store中，方便进入list.vue页面时优先渲染
 		getsingerdetail(){
 			this.$store.commit('getsonglistid',this.$store.state.priorityRenderSinger.id)
-			console.log(this.$store.state.songlistid);
 			// 1.获取歌单
-			//let url = 'http://120.79.162.149:3000/artists?id=' + this.$store.state.songlistid;
 			singerlistdetail(this.$store.state.songlistid).then(res => {
 				this.songlistdetail = [];
 				this.songlistdetail = res.data.hotSongs;
 				this.loadingFlag = !this.loadingFlag;
 			})
 		},
+
+
 		// 当点击时播放全部按钮时，将所有音乐缓存到localstorage中
 		clickplayall(){
 			//封装了一个保存播放全部列表的方法，传入两个参数，分别为音乐的的总数和音乐列表
 			playall(this.songlistdetail.length,this.songlistdetail);
-			console.log(this.songlistdetail)
 		},
+
+
 		//实现点击播放音乐后，playlist中改变当前播放音乐的颜色
 		changecolor(id,index){
 			let that = this;
@@ -148,20 +141,14 @@ export default{
 				that.clickplayall();
 				return resolve()
 			})
-			
 			//2.获取当前播放的音乐是第几首
-			console.log(index)
 			//3.改变playlist第几首的颜色
 			promise.then(function(){
-				console.log('chenggongle'+index);
 				that.$store.commit('setplaylistindex',id)
 			})
-			
 		}
 	},	
-	mounted:function(){
-    	this.getsingerdetail();
-  	},
+
 }
 </script>
 

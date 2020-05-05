@@ -52,10 +52,10 @@
               </Select>
             </FormItem>
             <FormItem label="手机号:">
-              <Input placeholder="Enter your name" v-model="editUserInfo.phoneNumber"></Input>
+              <Input  v-model="editUserInfo.phoneNumber"></Input>
             </FormItem>
             <FormItem label="邮箱:">
-              <Input placeholder="Enter your name" v-model="editUserInfo.email"></Input>
+              <Input v-model="editUserInfo.email"></Input>
             </FormItem>
           </Form>
           <Row :gutter="colSpace">
@@ -69,9 +69,10 @@
 </template>
 
 <script>
-  import { getUserInfo , changeSelfInfo , postSaveHeadImgUrl} from '../../api/user.js'
-  import util from '../../util/util.js'
-  import axios from 'axios'
+import { getUserInfo , changeSelfInfo , postSaveHeadImgUrl} from '../../api/user.js'
+import util from '../../util/util.js'
+import axios from 'axios'
+import { host2 } from '../../api/host.js'
 export default{
 	name: 'user',
 	data(){
@@ -120,18 +121,16 @@ export default{
   },
 
 	methods:{
+
     uploadImg(e){
-      console.log(e.target.files[0].type)
-      //if(!e.target.files.length) return
+      if(!e.target.files.length) return
       //判断图片格式，限制只能上传jpg和png格式的图片
       if(e.target.files[0].type == 'image/jpeg' || e.target.files[0].type == 'image/png'){
         let formData = new FormData()
         formData.append('headImg',e.target.files[0]);
-        let URL = 'http://192.168.102.41:3000/file/upload';
-        //let URL = 'http://localhost:3000/file/upload';
+        let URL = host2 + '/file/upload';
         axios.post(URL,formData,{headers: {'Content-Type': 'multipart/form-data'}})
           .then( res =>{
-            console.log(res)
             if(res.data.err == 0){
               return postSaveHeadImgUrl({
                 _id: JSON.parse(window.sessionStorage.getItem('token'))._id,
@@ -142,13 +141,12 @@ export default{
         .then( res => {
           if( res.data.err == 0){
             this.getUserInfo();
-            this.$Message.success('头像修改成功');
+            this.$Message.info('头像修改成功');
           }else{
             this.$Message.warning('头像修改失败');
           }
         })
         .catch( err => {
-          console.log(err)
         })
       }else{
         this.$Message.warning('不支持该图片格式');
@@ -157,10 +155,16 @@ export default{
 
 
     back(){
+      let that = this;
       history.go(-1);
-      //显示播放栏
-      let flag = true;
-      this.$store.commit('sq',flag);
+      //如果当前正在播放音乐，则显示播放栏，否则不显示
+      if(this.$store.state.playFlag == false){
+        setTimeout(function () {
+          let flag = true;
+          that.$store.commit('sq',flag);
+        },200)
+      }
+
     },
 
 
@@ -189,9 +193,8 @@ export default{
         this.userInfo = res.data;
         if(res.data.headImg != '' && res.data.headImg != null && res.data.headImg != undefined){
           //this.userInfo.headImg = 'http://192.168.102.41:3000' + res.data.headImg;
-          this.userInfo.headImg = 'http://192.168.102.41:3000' + res.data.headImg;
+          this.userInfo.headImg = host2 + res.data.headImg;
         }
-        console.log(this.userInfo)
       }).catch( err => {
 
       })
@@ -209,11 +212,11 @@ export default{
       };
       changeSelfInfo(params).then( res => {
         if( res.data.err == 0 ){
-          this.$Message.success = res.data.msg;
+          this.$Message.info(res.data.msg);
           this.editStatus = false;
           this.getUserInfo();
         }else {
-          this.$Message.success = res.data.msg;
+          this.$Message.info(res.data.msg);
         }
       }).catch( err => {
         this.$Message.success = err;

@@ -29,7 +29,7 @@
 import {panduan, latelyplay} from '../../../common/common.js'
 import {musicplayurl} from '../../../api/playmusicdetail.js'
 import {musicdetail} from '../../../api/playmusicdetail.js'
-import {addCollect} from '../../../api/user.js'
+import {addCollect , addSelfLatelyPlay} from '../../../api/user.js'
 export default{
 	name: 'playbottomplayfield',
 	data(){
@@ -44,6 +44,11 @@ export default{
 			playalllist: [],
 		}
 	},
+
+  mounted:function(){
+    this.move();
+  },
+
 	methods:{
 		//开始播放时，进度条和小球开始移动
 		move(){
@@ -71,9 +76,6 @@ export default{
 			let sec1;
 			let min2;
 			let sec2;
-			//console.log(zong);
-			//console.log(yi);
-			//console.log(speed);
 
 			let a = setInterval(function(){
 				c += speed;
@@ -85,7 +87,6 @@ export default{
 				//计算小球和进度条移动的位移
 				f = w*200;
 				if(yi == zong){
-					console.log('播放完毕')
 					//clearInterval(a);
 					//当播放结束时，进入下一首
 					//1.把是否播放结束的标志改为false，表示播放结束，表示可以进入下一首
@@ -123,15 +124,18 @@ export default{
 						span1.innerHTML = timed;
 
 					}else{
-						// console.log("no")
 					}
 				}
 			},150)
 
 		},
+
+
 		cc(){
 			this.$store.commit('setendflag',false)
 		},
+
+
 		//PC端进度条的拖拉
 		changebar(e){
 			let that = this;
@@ -149,8 +153,6 @@ export default{
 			let moveleft = 0;
 			//音乐的总时间
 			let time = audio.duration;
-			console.log('qiuboxbLeft:' + qiuboxbLeft);
-			console.log('clientX:' + e.clientX)
 			document.onmousemove = function(e){
 				//计算进度条已移动的距离，公式：终点位置距离body的距离 - qiubox父元素距离body的左边距
 				moveleft = e.clientX - qiuboxuLeft;
@@ -187,17 +189,14 @@ export default{
 			//获取当鼠标按下时小球距离父元素的左边距
 			let qiuboxbLeft = 0;
 			qiuboxbLeft = qiubox.offsetLeft;
-			//clientX获取鼠标当前位置，计算后得到qiubox父元素距离body的左边距
+			//clientX获取鼠标当前位置，计算后得到qiubox父元素距离body的左边距(进度条最左端距离body的左边距)
 			let qiuboxuLeft = 0;
 			qiuboxuLeft = event.changedTouches[0].clientX - qiuboxbLeft;
 			//用来保存小球需要移动的距离
 			let moveleft = 0;
 			//音乐的总时间
 			let time = audio.duration;
-			console.log('qiuboxbLeft:' + qiuboxbLeft);
-			console.log('clientX:' + e.clientX)
 			document.ontouchmove = function(e){
-				//console.log('qiuboxuLeft:' + event.changedTouches[0].clientX)
 				//计算进度条已移动的距离，公式：终点位置距离body的距离 - qiubox父元素距离body的左边距
 				moveleft = event.changedTouches[0].clientX - qiuboxuLeft;
 				if(moveleft >= 200){
@@ -220,23 +219,23 @@ export default{
 				document.ontouchmove = null;
 			}
 		},
-		stopmusic(){
-			let audio = document.getElementById('audio');
-			audio.play();
-		},
+
+
 		//音乐播放的方法
 		play(){
 			//playFlag为false时，音乐正在播放，为ture时，音乐暂停
-			console.log('点击了播放按钮')
 			let audio = document.getElementById('audio');
 			audio.play();
 		},
+
+
 		//音乐暂停的方法
 		stop(){
-			console.log('点击了暂停按钮')
 			let audio = document.getElementById('audio');
 			audio.pause();
 		},
+
+
 		//音乐收藏
 		coollect(){
 			let songName = this.$store.state.musicdetail.name;
@@ -244,7 +243,6 @@ export default{
 			let songId = this.$store.state.musicdetail.id;
 			let _id = JSON.parse(window.sessionStorage.getItem('token'))._id;
 			let addTime = new Date().getTime();
-			console.log(_id)
 			//如果已有收藏时，在原收藏后追加
 			addCollect({_id,songId,songName,singerName,singerName,addTime})
 			.then( res => {
@@ -254,8 +252,9 @@ export default{
 					this.$Message.success('已取消收藏')
 				}
 			})
-			
 		},
+
+
 		//上一首
 		goUp(){
 			let p = panduan(this.$store.state.musicdetail.id);
@@ -263,7 +262,17 @@ export default{
 			let playalllist = JSON.parse(window.localStorage.getItem('playalllist'));
 			this.getmusic(playalllist[index-1].id,index-1)
 			this.$store.commit('setendflag',true)
+      let _id = JSON.parse(window.sessionStorage.getItem('token'))._id;
+      let songId = playalllist[index-1].id;
+      let songName = playalllist[index-1].name;
+      let singerName = playalllist[index-1].artists[0].name;
+      let addTime = new Date().getTime();
+      addSelfLatelyPlay({_id,songId,songName,singerName,addTime})
+      .then( res => {
+      })
 		},
+
+
 		//下一首
 		goNext(){
 			let p = panduan(this.$store.state.musicdetail.id);
@@ -271,20 +280,29 @@ export default{
 			let playalllist = JSON.parse(window.localStorage.getItem('playalllist'));
 			this.getmusic(playalllist[index+1].id,index+1)
 			this.$store.commit('setendflag',true)
+      let _id = JSON.parse(window.sessionStorage.getItem('token'))._id;
+      let songId = playalllist[index+1].id;
+      let songName = playalllist[index+1].name;
+      let singerName = playalllist[index+1].artists[0].name;
+      let addTime = new Date().getTime();
+      addSelfLatelyPlay({_id,songId,songName,singerName,addTime})
+      .then( res => {
+      })
 		},
+
+
 		//获取音乐地址的方法
 		getmusic(idx,index){
-			console.log(idx)
 			this.playurl = '';
 			//使用vue-resource调用音乐播放地址的API，获取我们想要的播放地址
 			musicplayurl(idx).then(res => {
-				console.log(res)
-				// console.log(res.data.data[0].url)
 				//获取可以播放的url地址
 				this.playurl = res.data.data[0].url;
 				this.playmusic(this.playurl,index,idx);
 			})
 		},
+
+
 		//播放音乐的方法
 	    playmusic(url,index,idx){
 	      let that = this;
@@ -304,52 +322,41 @@ export default{
 		      	singername = this.playalllist[index].ar[0].name;
 		      }
 		      this.getdetail(idx);
-		      //当进入播放页后，把播放的音乐添加进最近播放列表中
-		      // 如果一开始就已经有最近播放的列表，则把原有的列表读取出来，再追加新播放的音乐
-		      // 否则，新建一个recentplaylist本地存储，再将播放的音乐添加进最近播放列表中
-		      latelyplay(this.playalllist[index].name,
-		      				singername,
-		      					this.playalllist[index].id)
 		      //获取当前正在播放音乐的索引
 		      let p = panduan(idx);
-		      console.log(p)
 		      //this.$store.state.playlistindex==index，让正在播放的音乐高亮
 		      this.$store.commit('setplaylistindex',idx);
-		      
 	      }
-
-	      
 		},
+
+
 		//获取所播放音乐的详情(背景图片和歌名)的方法
 		getdetail(id){
-			//let url = 'http://120.79.162.149:3000/song/detail?ids=' + id
 			musicdetail(id).then(res=>{
 				//此时detail中存放的有背景图和歌名
 				this.detail = res.data.songs[0];
 				//获取到音乐详情后，保存到store的musicdetail中
-				console.log(res.data.songs[0])
 				this.abc(this.detail);
-
 			})
 		},
+
+
 		abc(detail){
 			this.$store.commit('bcd',detail)
 		},
+
+
 		//跳转到评论页面
 		goComments(){
 			let musicDetail = { "songId": this.$store.state.musicdetail.id,
 								"songName": this.$store.state.musicdetail.name,
-								"singerName": this.$store.state.musicdetail.ar[0].name}
+								"singerName": this.$store.state.musicdetail.ar[0].name
+			}
 			window.sessionStorage.setItem('musicDetail', JSON.stringify(musicDetail));
 			this.$router.push('/comments');
 		}
+	},
 
-		
-		
-	},
-	mounted:function(){
-		this.move();
-	},
 	
 	
 }

@@ -5,6 +5,6 @@ export function axiosRequest(url){
 	if(token){
 		return axios.get(url)
 	}else{
-		console.log('api被拦截了')
+		//console.log('api被拦截了')
 	}
 }

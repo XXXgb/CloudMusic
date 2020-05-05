@@ -53,61 +53,16 @@ export default {
       strokeWidth: 4
     }
   },
+
   components:{
     playlist
   },
-  methods:{
-    //播放音乐的方法
-    playmusic(url){
-      this.flag = true;
-      document.querySelector('audio').src = url;
-      this.$router.push({
-        path: '/play'
-      })
-    },
-    //接收lunbo.vue页面传过来的音乐id，实现音乐播放
-    songid(){
-      bus.$on('getsongid',res=>{
-        this.playmusic(res);
-      })
-    },
-    //接收lunbo.vue传过来的数据
-    getdetail(){
-      bus.$on('getValue',res=>{
-        this.b = [];
-        this.b = res;
-        // console.log(res)
-        this.detailimg = this.b.al.picUrl;
-        this.detailsongname = this.b.name;
-        this.detailsongpeople = this.b.ar[0].name;
-      })
-    },
-    //音乐播放按钮点击播放事件
-    play(){
-      let audio = document.querySelector('audio');
-      audio.play();
-    },
-    // 音乐暂停按钮点击暂停事件
-    stop(){
-      let audio = document.querySelector('audio');
-      audio.pause();
-    },
-    //当点击playfield组件是，路由到play.vue页面
-    goplaypage(){
-      this.$router.push({
-        path: '/play'
-      })
-    },
-    //显示播放列表
-    showplaylist(){
-      this.$refs.playlist.toggleplaylist();
-      this.$refs.playlist.getplayalllist();
-    },
-  },
+
   created:function(){
     this.songid();
     this.getdetail();
   },
+
   mounted:function(){
     /*********************监听播放状态*********************/
     let audio = document.querySelector('audio');
@@ -118,9 +73,72 @@ export default {
     })
     //执行了播放操作
     audio.addEventListener("playing",function(){
-      that.$store.state.playFlag = false; 
+      that.$store.state.playFlag = false;
     })
-  }
+  },
+
+  methods:{
+
+    //播放音乐的方法
+    playmusic(url){
+      this.flag = true;
+      document.querySelector('audio').src = url;
+      this.$router.push({
+        path: '/play'
+      })
+    },
+
+
+    //接收lunbo.vue页面传过来的音乐id，实现音乐播放
+    songid(){
+      bus.$on('getsongid',res=>{
+        this.playmusic(res);
+      })
+    },
+
+
+    //接收lunbo.vue传过来的数据
+    getdetail(){
+      bus.$on('getValue',res=>{
+        this.b = [];
+        this.b = res;
+        this.detailimg = this.b.al.picUrl;
+        this.detailsongname = this.b.name;
+        this.detailsongpeople = this.b.ar[0].name;
+      })
+    },
+
+
+    //音乐播放按钮点击播放事件
+    play(){
+      let audio = document.querySelector('audio');
+      audio.play();
+    },
+
+
+    // 音乐暂停按钮点击暂停事件
+    stop(){
+      let audio = document.querySelector('audio');
+      audio.pause();
+    },
+
+
+    //当点击playfield组件是，路由到play.vue页面
+    goplaypage(){
+      this.$router.push({
+        path: '/play'
+      })
+    },
+
+
+    //显示播放列表
+    showplaylist(){
+      this.$refs.playlist.toggleplaylist();
+      this.$refs.playlist.getplayalllist();
+    },
+  },
+
+
   
 }
 </script>
