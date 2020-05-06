@@ -5,8 +5,19 @@
         <Icon type="md-arrow-back" size="25" color="#f2f2f3"/>
 			</div>
 			<div class="searchmusic">
-        <Input v-model="keywords" id="searchmusic" @on-change="getsearch" clearable ref="searchmusic" placeholder="搜索音乐、歌词、歌单" @on-clear="removecontent" />
-			</div>
+        <Input v-model="keywords" id="searchmusic" @on-change="getSearchSuggest" clearable ref="searchmusic" placeholder="搜索音乐、歌词、歌单" @on-clear="removecontent" />
+        <Dropdown trigger="custom" :visible="visible" @on-click="selectSuggest" style="width:100%;">
+          <DropdownMenu slot="list">
+            <Divider orientation="left" v-if="suggestSinger">歌手</Divider>
+            <DropdownItem v-for="(item,index) in suggestSinger" :key="item.id" :name="item.name">{{item.name}}</DropdownItem>
+            <Divider orientation="left" v-if="suggestSongs">单曲</Divider>
+            <DropdownItem v-for="(item,index) in suggestSongs" :key="item.id" :name="item.name">{{item.name}}  -{{item.artists[0].name}}</DropdownItem>
+          </DropdownMenu>
+        </Dropdown>
+      </div>
+      <div class="imgstyle searchbox" @click="getsearch">
+        <Icon type="ios-search" size="25" color="#f2f2f3" />
+      </div>
 		</div>
 		<div class="hotsearch-wai" v-if="!keywords">
 			<div class="hotsearch-nei">
@@ -16,7 +27,7 @@
 				</ul>
 			</div>
 		</div>
-		<div class="search-result-box" v-if="keywords">
+		<div class="search-result-box" v-if="resultVal">
       <Scroll :on-reach-bottom="handleReachBottom" :height="clientHeight">
 			<div class="search-singger-songlist-box">
 				<p>最佳匹配</p>
@@ -71,7 +82,11 @@ export default{
 			playurl: '',
 			flag: false,
 			detail:[],
-      clientHeight: ''
+      clientHeight: '',
+      visible: false,
+      suggestSongs: '',
+      suggestSinger: '',
+      resultVal: false
 		}
 	},
 
@@ -91,7 +106,19 @@ export default{
 	  //清空搜索结果
 		removecontent(){
 			this.songlist = '';
+			this.visible = false;
+			this.suggestSongs = '';
+			this.suggestSongs = '';
 		},
+
+    //选择搜索建议的回调
+    selectSuggest(data){
+		  this.keywords = data;
+		  this.visible = false;
+		  this.suggestSongs = '';
+		  this.suggestSinger = '';
+		  this.getsearch();
+    },
 
 
 		//回退到上一页
@@ -135,7 +162,44 @@ export default{
 				this.songlist = [];
 				this.songlist = res.data.result.songs;
 			})
+      this.resultVal = true;
+			this.visible = false;
 		},
+
+    //获取搜索建议
+    getSearchSuggest(){
+      if(this.keywords == '' || this.keywords == null || this.keywords == undefined){
+        console.log(this.keywords)
+        this.visible = false;
+        this.suggestSongs = '';
+        this.suggestSinger = '';
+        this.resultVal = false;
+      }else{
+        let that = this;
+        clearTimeout(aaa);
+        let aaa = setTimeout(function () {
+          that.visible = true;
+          try {
+            singerurl(that.keywords).then(res=>{
+              if(res.data.code != 400){
+                if(res.data.result.songs){
+                  that.suggestSongs = res.data.result.songs;
+                }
+                if(res.data.result.artists){
+                  that.suggestSinger = res.data.result.artists;
+                }
+              }
+            })
+          }
+          catch (e) {
+
+          }
+        },250)
+      }
+
+
+      
+    },
 
 
 		//触底加载多30首歌曲
@@ -297,6 +361,11 @@ export default{
 	left: 1%;
 	top: 25%;
 }
+.searchbox{
+  position: absolute;
+  right: 1%;
+  top: 25%;
+}
 .imgstyle img{
 	width:100%;
 	height: 100%;
@@ -304,7 +373,7 @@ export default{
 }
 .searchmusic{
 	float: left;
-	width:85%;
+	width:80%;
 	height: 80%;
 	padding-left: 2%;
 	position: absolute;
@@ -435,6 +504,10 @@ export default{
 	text-overflow: ellipsis;
 	overflow: hidden;
 	white-space: nowrap;
+}
+.ivu-dropdown-item{
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
 
 </style>

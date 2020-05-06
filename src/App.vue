@@ -291,4 +291,5 @@ input,textarea{
 .searchmusic .ivu-input-icon{
   color:#f2f2f3;
 }
+
 </style>

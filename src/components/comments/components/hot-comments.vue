@@ -41,6 +41,21 @@
 		</div>
 		<div>
 			<span style="margin-left: 10px;font-weight: 600;font-size: 14px;margin-left: 10px;font-weight: 600;letter-spacing: 1px;">实时评论({{total}})</span>
+      <!--评论(全部人可见)-->
+      <div class="hot-comments-box" v-for="(item,index) in allCommments">
+        <div style="width: 40px;height: 40px;margin: 10px;">
+          <img :src="item.headImg">
+        </div>
+        <div class="hot-comments-box-content" style="position: relative;">
+          <div style="display: flex;justify-content: space-between;margin: 10px 0 0 0 ;">
+            <span style="color:  rgb(110, 95, 95);font-size: 14px;">{{item.nickName}}</span>
+            <span style="color:  rgb(131, 105, 105);font-size: 14px;margin-right: 10px;">{{item.likeCount}}<Icon type="md-thumbs-up" style="margin-left: 5px;"/></span>
+          </div>
+          <div style="font-size: 10px;color: rgb(183, 150, 150);">{{item.commentsTime | timeFormat}}</div>
+          <div class="hot-comments-border" style="font-size: 14px;letter-spacing: 1px;color: #342525;margin: 5px 10px 10px 0;line-height: 18px;">{{item.commentsContent}}</div>
+        </div>
+      </div>
+      <!--评论(网易实时评论)-->
 			<div class="hot-comments-box" v-for="(item,index) in newComments">
 				<div style="width: 40px;height: 40px;margin: 10px;">
 					<img :src="item.user.avatarUrl">
@@ -65,7 +80,7 @@
 
 <script>
 import {commentsDetail} from '../../../api/comments.js'
-import {getMyComments,addMyComments,removeMyComments} from '../../../api/user.js'
+import {getMyComments,addMyComments,removeMyComments,addAllComments,getAllComments,removeAllComments} from '../../../api/user.js'
 import {host2} from '../../../api/host.js'
 export default{
 	name: 'hotComments',
@@ -78,7 +93,8 @@ export default{
 			loaded: false,
 			commentValue: '',
 			myComments: '',
-      clientHeight: ''
+      clientHeight: '',
+      allCommments: ''
 		}
 	},
 	filters:{
@@ -129,8 +145,10 @@ export default{
     this.clientHeight = document.documentElement.clientHeight - 84;
 		//每次刷新或进入页面，将最新评论的条数统一为20条
 		this.offset = 0;
+    this.getAllComments();
 		this.getComments();
 		this.getMyComments();
+
 	},
 	methods:{
 
@@ -152,6 +170,21 @@ export default{
 			})
 		},
 
+    //查看评论(所有人可见的)
+    getAllComments(){
+      let songId = JSON.parse(window.sessionStorage.getItem('musicDetail')).songId;
+      getAllComments({songId})
+        .then( res => {
+          this.allCommments = res.data;
+          for(let i=0;i<res.data.length;i++){
+            if(res.data.headImg != undefined || res.data.headImg != '' || res.data.headImg != null){
+              this.allCommments[i].headImg = host2 + res.data[i].headImg;
+            }
+          }
+          console.log(this.allCommments)
+        })
+    },
+
 
 		//添加个人评论
 		addMyComments(){
@@ -161,14 +194,21 @@ export default{
 			let singerName = JSON.parse(window.sessionStorage.getItem('musicDetail')).singerName;
 			let commentsTime = new Date().getTime();
 			let commentsContent = this.commentValue.trim();
+			let headImg = JSON.parse(window.sessionStorage.getItem('token')).headImg;
+			let nickName = JSON.parse(window.sessionStorage.getItem('token')).nickName;
 			if(commentsContent){
 				addMyComments({_id,songId,songName,singerName,commentsTime,commentsContent})
 				.then( res => {
 					if(res.data.err === 0){
 						this.commentValue = '';
 						this.getMyComments();
+            this.getAllComments();
 					}
 				})
+        addAllComments({_id,songId,songName,singerName,commentsTime,commentsContent,headImg,nickName})
+          .then( res => {
+            console.log(res)
+          })
 			}else{
 				alert('请输入评论内容！')
 			}
@@ -179,8 +219,16 @@ export default{
 		removeMyComments(songId,commentsTime){
 			let _id = JSON.parse(window.sessionStorage.getItem('token'))._id;
 			removeMyComments({_id,songId,commentsTime}).then( res => {
-				this.getMyComments();
+			  if(res.data.err == 0){
+			    return removeAllComments({_id,songId,commentsTime})
+        }
 			})
+        .then( res => {
+          if(res.data.err == 0){
+            this.getMyComments();
+            this.getAllComments();
+          }
+        })
 		},
 
 

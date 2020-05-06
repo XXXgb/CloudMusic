@@ -39,22 +39,40 @@ export function findCollect(data){
 	return axios.get(url)
 }
 
-//查询个人歌曲评论
+//查询个人歌曲评论(个人可见)
 export function getMyComments({_id,songId}){
 	const url = host2 + `/music/findComments?_id=${_id}&songId=${songId}`
 	return axios.get(url)
 }
 
-//添加个人评论
+//查询评论(所有人可见)
+export function getAllComments({songId}){
+  const url = host2 + `/allComments/findComments?songId=${songId}`
+  return axios.get(url)
+}
+
+//添加个人评论(个人可见)
 export function addMyComments(data){
 	const url = host2 + '/music/addComments'
 	return axios.post(url,qs.stringify(data))
 }
 
-//删除个人评论
+//添加个人评论(所有人可见)
+export function addAllComments(data){
+  const url = host2 + '/allComments/addComments'
+  return axios.post(url,qs.stringify(data))
+}
+
+//删除个人评论(个人可见)
 export function removeMyComments({_id,songId, commentsTime}){
 	const url = host2 + `/music/removeComments?_id=${_id}&songId=${songId}&commentsTime=${commentsTime}`
 	return axios.get(url)
+}
+
+//删除个人评论(所有人可见)
+export function removeAllComments({_id,songId, commentsTime}){
+  const url = host2 + `/allComments/removeComments?_id=${_id}&songId=${songId}&commentsTime=${commentsTime}`
+  return axios.get(url)
 }
 
 //添加个人最近播放
