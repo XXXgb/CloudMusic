@@ -21,8 +21,6 @@ export default{
 	},
 	methods:{
 		back(){
-			let flag = true;
-			this.$store.commit('sq',flag);
 			history.go(-1);
 		}
 	},

@@ -6,8 +6,8 @@
 		<router-link to="/paihang">
 			<div :class="{addunderline : '/paihang'===$route.path}">排行</div>
 		</router-link>
-		<router-link to="/comments">
-			<div :class="{addunderline : '/singer'===$route.path}">歌手</div>
+		<router-link to="/userInfo">
+			<div :class="{addunderline : '/singer'===$route.path}">我的</div>
 		</router-link>
 	</div>
 	

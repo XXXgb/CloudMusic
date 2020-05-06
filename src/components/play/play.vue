@@ -31,9 +31,6 @@ export default{
 		
 	},
 	mounted:function(){
-		//隐藏播放栏
-		let flag = false;
-		this.$store.commit('sq',flag);
 	}
 	
 }

@@ -114,9 +114,6 @@ export default{
   },
 
   mounted(){
-	  //隐藏播放栏
-    let flag = false;
-    this.$store.commit('sq',flag);
 	  this.getUserInfo();
   },
 
@@ -157,14 +154,6 @@ export default{
     back(){
       let that = this;
       history.go(-1);
-      //如果当前正在播放音乐，则显示播放栏，否则不显示
-      /*if(this.$store.state.playFlag == false){
-        setTimeout(function () {
-          let flag = true;
-          that.$store.commit('sq',flag);
-        },200)
-      }*/
-
     },
 
 

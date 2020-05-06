@@ -19,7 +19,9 @@ export default{
 		lunbo,
 		recommendsonglist,
 		navbar,
-	}
+	},
+  methods:{
+  }
 }
 </script>
 

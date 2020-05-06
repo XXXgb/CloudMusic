@@ -169,10 +169,6 @@ export default{
       let audio = document.getElementById('audio');
       audio.pause();
       audio.currertTime = 0;
-      //隐藏播放栏
-      let flag = false;
-      this.$store.commit('sq',flag);
-			//删除sessionStorage中的token
 			window.sessionStorage.removeItem('token');
 			this.$router.push({
 				name: 'login'
